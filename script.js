@@ -1,0 +1,1467 @@
+// Cấu hình AI API
+const AI_CONFIG = {
+    apiKey: "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",
+    apiUrl: "https://openrouter.ai/api/v1/chat/completions",
+    model: "google/gemma-3-27b-it:free"
+};
+
+// Dữ liệu ngành học FPT Polytechnic
+let MAJORS_DATA = {};
+
+// Load dữ liệu ngành học từ JSON
+async function loadMajorsData() {
+    try {
+        const response = await fetch('majors_curriculum.json');
+        const data = await response.json();
+        MAJORS_DATA = data;
+    } catch (error) {
+        console.warn('Không thể load dữ liệu ngành học, sử dụng dữ liệu mặc định');
+        // Fallback data
+        MAJORS_DATA = {
+            majors: [
+                { name: "Công nghệ thông tin", code: "CNTT" },
+                { name: "Kỹ thuật phần mềm", code: "KTPM" },
+                { name: "An toàn thông tin", code: "ATTT" },
+                { name: "Thiết kế đồ họa", code: "TKDH" },
+                { name: "Quản trị kinh doanh", code: "QTKD" },
+                { name: "Marketing", code: "MKT" },
+                { name: "Tài chính - Ngân hàng", code: "TCNH" },
+                { name: "Kế toán", code: "KT" },
+                { name: "Du lịch - Khách sạn", code: "DLKS" },
+                { name: "Ngôn ngữ Anh", code: "NNA" },
+                { name: "Ngôn ngữ Nhật", code: "NNN" },
+                { name: "Ngôn ngữ Hàn Quốc", code: "NNH" },
+                { name: "Công nghệ thực phẩm", code: "CNTP" },
+                { name: "Công nghệ sinh học", code: "CNSH" },
+                { name: "Điện tử - Viễn thông", code: "DTVT" },
+                { name: "Cơ điện tử", code: "CDT" },
+                { name: "Xây dựng", code: "XD" },
+                { name: "Kiến trúc", code: "KT" }
+            ]
+        };
+    }
+}
+
+// Lưu trữ dữ liệu
+let consultationHistory = JSON.parse(localStorage.getItem('consultationHistory') || '[]');
+let skillChart = null;
+let statsChart = null;
+
+// Chat functionality
+let chatHistory = [];
+let isTyping = false;
+let currentStreamingMessage = null;
+
+// Multi-page functionality
+function initializeMultiPage() {
+    setupNavigation();
+    setupMobileMenu();
+    setupPageSpecificFeatures();
+}
+
+function setupNavigation() {
+    // Set active navigation based on current page
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === currentPage) {
+            link.classList.add('active');
+        }
+    });
+}
+
+function setupMobileMenu() {
+    const hamburger = document.querySelector('.hamburger');
+    const navMenu = document.querySelector('.nav-menu');
+    
+    if (hamburger && navMenu) {
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Close menu when clicking on a link
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+    }
+}
+
+function setupPageSpecificFeatures() {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    
+    switch (currentPage) {
+        case 'majors.html':
+            setupMajorsPage();
+            break;
+        case 'results.html':
+            setupResultsPage();
+            break;
+        case 'chat.html':
+            setupChatPage();
+            break;
+        case 'consultation.html':
+            setupConsultationPage();
+            break;
+        case 'about.html':
+            setupAboutPage();
+            break;
+        default:
+            setupHomePage();
+            break;
+    }
+}
+
+function setupHomePage() {
+    // Add any home page specific functionality
+    console.log('Home page loaded');
+}
+
+function setupMajorsPage() {
+    loadMajorsData().then(() => {
+        displayMajors();
+        setupMajorsSearch();
+        setupMajorsFilter();
+        setupMajorModal();
+    });
+}
+
+function setupResultsPage() {
+    loadConsultationHistory();
+    displayResultsStatistics();
+    displayPopularMajorsChart();
+    displayConsultationHistory();
+    setupExportFunctions();
+    setupResultModal();
+}
+
+function setupChatPage() {
+    setupChatHandling();
+    console.log('Chat page loaded');
+}
+
+function setupConsultationPage() {
+    setupFormHandling();
+    console.log('Consultation page loaded');
+}
+
+function setupAboutPage() {
+    setupContactForm();
+    console.log('About page loaded');
+}
+
+// Majors page functionality
+function displayMajors() {
+    const majorsGrid = document.getElementById('majorsGrid');
+    if (!majorsGrid || !MAJORS_DATA.majors) return;
+
+    majorsGrid.innerHTML = '';
+    
+    MAJORS_DATA.majors.forEach(major => {
+        const majorCard = createMajorCard(major);
+        majorsGrid.appendChild(majorCard);
+    });
+}
+
+function createMajorCard(major) {
+    const card = document.createElement('div');
+    card.className = 'major-card';
+    card.setAttribute('data-major', major.name.toLowerCase());
+    
+    const icon = getMajorIcon(major.name);
+    
+    card.innerHTML = `
+        <div class="major-icon">
+            <i class="${icon}"></i>
+        </div>
+        <h3>${major.name}</h3>
+        <p>${getMajorDescription(major.name)}</p>
+        <button class="btn btn-outline" onclick="openMajorModal('${major.name}')">
+            <i class="fas fa-info-circle"></i> Chi tiết
+        </button>
+    `;
+    
+    return card;
+}
+
+function getMajorIcon(majorName) {
+    const iconMap = {
+        'Công nghệ thông tin': 'fas fa-code',
+        'Kỹ thuật phần mềm': 'fas fa-laptop-code',
+        'An toàn thông tin': 'fas fa-shield-alt',
+        'Thiết kế đồ họa': 'fas fa-palette',
+        'Quản trị kinh doanh': 'fas fa-briefcase',
+        'Marketing': 'fas fa-chart-line',
+        'Tài chính - Ngân hàng': 'fas fa-university',
+        'Kế toán': 'fas fa-calculator',
+        'Du lịch - Khách sạn': 'fas fa-hotel',
+        'Ngôn ngữ Anh': 'fas fa-language',
+        'Ngôn ngữ Nhật': 'fas fa-language',
+        'Ngôn ngữ Hàn Quốc': 'fas fa-language',
+        'Công nghệ thực phẩm': 'fas fa-utensils',
+        'Công nghệ sinh học': 'fas fa-dna',
+        'Điện tử - Viễn thông': 'fas fa-satellite-dish',
+        'Cơ điện tử': 'fas fa-cogs',
+        'Xây dựng': 'fas fa-hammer',
+        'Kiến trúc': 'fas fa-drafting-compass'
+    };
+    
+    return iconMap[majorName] || 'fas fa-graduation-cap';
+}
+
+function getMajorDescription(majorName) {
+    const descriptions = {
+        'Công nghệ thông tin': 'Phát triển ứng dụng và hệ thống thông tin',
+        'Kỹ thuật phần mềm': 'Thiết kế và phát triển phần mềm chất lượng cao',
+        'An toàn thông tin': 'Bảo vệ hệ thống và dữ liệu khỏi các mối đe dọa',
+        'Thiết kế đồ họa': 'Sáng tạo thiết kế visual và digital art',
+        'Quản trị kinh doanh': 'Quản lý và phát triển doanh nghiệp',
+        'Marketing': 'Chiến lược marketing trong thời đại số',
+        'Tài chính - Ngân hàng': 'Quản lý tài chính và hoạt động ngân hàng',
+        'Kế toán': 'Quản lý tài chính và báo cáo kế toán',
+        'Du lịch - Khách sạn': 'Quản lý dịch vụ du lịch và khách sạn',
+        'Ngôn ngữ Anh': 'Thành thạo tiếng Anh và văn hóa quốc tế',
+        'Ngôn ngữ Nhật': 'Thành thạo tiếng Nhật và văn hóa Nhật Bản',
+        'Ngôn ngữ Hàn Quốc': 'Thành thạo tiếng Hàn và văn hóa Hàn Quốc',
+        'Công nghệ thực phẩm': 'Công nghệ chế biến và bảo quản thực phẩm',
+        'Công nghệ sinh học': 'Ứng dụng công nghệ sinh học trong thực tế',
+        'Điện tử - Viễn thông': 'Thiết kế và vận hành hệ thống viễn thông',
+        'Cơ điện tử': 'Tích hợp cơ khí, điện tử và điều khiển',
+        'Xây dựng': 'Thiết kế và thi công công trình xây dựng',
+        'Kiến trúc': 'Thiết kế kiến trúc và quy hoạch đô thị'
+    };
+    
+    return descriptions[majorName] || 'Chương trình đào tạo chất lượng cao';
+}
+
+function setupMajorsSearch() {
+    const searchInput = document.getElementById('majorSearch');
+    if (!searchInput) return;
+    
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const majorCards = document.querySelectorAll('.major-card');
+        
+        majorCards.forEach(card => {
+            const majorName = card.querySelector('h3').textContent.toLowerCase();
+            const majorDesc = card.querySelector('p').textContent.toLowerCase();
+            
+            if (majorName.includes(searchTerm) || majorDesc.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+}
+
+function setupMajorsFilter() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    if (!filterButtons.length) return;
+    
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(b => b.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const filter = this.getAttribute('data-filter');
+            filterMajors(filter);
+        });
+    });
+}
+
+function filterMajors(filter) {
+    const majorCards = document.querySelectorAll('.major-card');
+    
+    majorCards.forEach(card => {
+        const majorName = card.querySelector('h3').textContent.toLowerCase();
+        
+        if (filter === 'all') {
+            card.style.display = 'block';
+        } else {
+            // Simple filtering logic - can be enhanced
+            const categoryMap = {
+                'technology': ['công nghệ', 'kỹ thuật', 'an toàn', 'điện tử', 'cơ điện tử'],
+                'business': ['quản trị', 'marketing', 'tài chính', 'kế toán'],
+                'design': ['thiết kế', 'kiến trúc'],
+                'marketing': ['marketing']
+            };
+            
+            const categories = categoryMap[filter] || [];
+            const matches = categories.some(cat => majorName.includes(cat));
+            
+            card.style.display = matches ? 'block' : 'none';
+        }
+    });
+}
+
+function setupMajorModal() {
+    const modal = document.getElementById('majorModal');
+    const closeBtn = document.getElementById('closeModal');
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('show');
+        });
+    }
+    
+    // Close modal when clicking outside
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+    }
+}
+
+function openMajorModal(majorName) {
+    const modal = document.getElementById('majorModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const majorCode = document.getElementById('majorCode');
+    const skillsList = document.getElementById('skillsList');
+    const curriculumContent = document.getElementById('curriculumContent');
+    
+    if (!modal) return;
+    
+    // Set modal title
+    modalTitle.textContent = majorName;
+    majorCode.textContent = getMajorCode(majorName);
+    
+    // Load major data
+    const major = MAJORS_DATA.majors.find(m => m.name === majorName);
+    if (major) {
+        displayMajorSkills(skillsList, major);
+        displayMajorCurriculum(curriculumContent, major);
+    }
+    
+    // Setup curriculum tabs
+    setupCurriculumTabs();
+    
+    modal.classList.add('show');
+}
+
+function getMajorCode(majorName) {
+    const major = MAJORS_DATA.majors.find(m => m.name === majorName);
+    return major ? major.code : 'N/A';
+}
+
+function displayMajorSkills(skillsList, major) {
+    if (!skillsList) return;
+    
+    const skills = major.skills || [
+        'Tư duy logic và phân tích',
+        'Kỹ năng giao tiếp',
+        'Làm việc nhóm',
+        'Sáng tạo và đổi mới',
+        'Thích ứng với công nghệ mới'
+    ];
+    
+    skillsList.innerHTML = skills.map(skill => 
+        `<div class="skill-item"><i class="fas fa-check"></i> ${skill}</div>`
+    ).join('');
+}
+
+function displayMajorCurriculum(curriculumContent, major) {
+    if (!curriculumContent) return;
+    
+    const curriculum = major.curriculum || {};
+    const semesters = ['ky1', 'ky2', 'ky3', 'ky4', 'ky5', 'ky6'];
+    
+    let html = '';
+    semesters.forEach(semester => {
+        const subjects = curriculum[semester] || [];
+        if (subjects.length > 0) {
+            html += `
+                <div class="semester-content" data-semester="${semester}">
+                    <h4>Học kỳ ${semester.replace('ky', '')}</h4>
+                    <div class="subjects-list">
+                        ${subjects.map(subject => `
+                            <div class="subject-item">
+                                <span class="subject-code">${subject.code}</span>
+                                <span class="subject-name">${subject.name}</span>
+                                <span class="subject-credits">${subject.credits} tín chỉ</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    });
+    
+    curriculumContent.innerHTML = html;
+}
+
+function setupCurriculumTabs() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const semesterContents = document.querySelectorAll('.semester-content');
+    
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const semester = this.getAttribute('data-semester');
+            
+            // Update active tab
+            tabButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Show corresponding content
+            semesterContents.forEach(content => {
+                content.style.display = content.getAttribute('data-semester') === semester ? 'block' : 'none';
+            });
+        });
+    });
+}
+
+// Results page functionality
+function displayResultsStatistics() {
+    const totalConsultations = document.getElementById('totalConsultations');
+    const totalMajors = document.getElementById('totalMajors');
+    const thisMonth = document.getElementById('thisMonth');
+    const avgRating = document.getElementById('avgRating');
+    
+    if (totalConsultations) totalConsultations.textContent = consultationHistory.length;
+    if (totalMajors) totalMajors.textContent = getUniqueMajorsCount();
+    if (thisMonth) thisMonth.textContent = getThisMonthConsultations();
+    if (avgRating) avgRating.textContent = getAverageRating();
+}
+
+function getUniqueMajorsCount() {
+    const majors = new Set();
+    consultationHistory.forEach(consultation => {
+        if (consultation.recommendedMajor) {
+            majors.add(consultation.recommendedMajor);
+        }
+    });
+    return majors.size;
+}
+
+function getThisMonthConsultations() {
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    
+    return consultationHistory.filter(consultation => {
+        const consultationDate = new Date(consultation.date);
+        return consultationDate.getMonth() === currentMonth && 
+               consultationDate.getFullYear() === currentYear;
+    }).length;
+}
+
+function getAverageRating() {
+    const ratings = consultationHistory
+        .filter(consultation => consultation.rating)
+        .map(consultation => consultation.rating);
+    
+    if (ratings.length === 0) return '0';
+    
+    const average = ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
+    return average.toFixed(1);
+}
+
+function displayPopularMajorsChart() {
+    const ctx = document.getElementById('popularMajorsChart');
+    if (!ctx) return;
+    
+    const majorCounts = {};
+    consultationHistory.forEach(consultation => {
+        if (consultation.recommendedMajor) {
+            majorCounts[consultation.recommendedMajor] = 
+                (majorCounts[consultation.recommendedMajor] || 0) + 1;
+        }
+    });
+    
+    const labels = Object.keys(majorCounts);
+    const data = Object.values(majorCounts);
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: [
+                    '#667eea', '#764ba2', '#f093fb', '#f5576c',
+                    '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+                    '#fa709a', '#fee140', '#a8edea', '#fed6e3'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+}
+
+function displayConsultationHistory() {
+    const historyList = document.getElementById('historyList');
+    if (!historyList) return;
+    
+    historyList.innerHTML = '';
+    
+    consultationHistory.forEach((consultation, index) => {
+        const historyItem = createHistoryItem(consultation, index);
+        historyList.appendChild(historyItem);
+    });
+}
+
+function createHistoryItem(consultation, index) {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    
+    item.innerHTML = `
+        <div class="history-content">
+            <div class="history-info">
+                <h3>${consultation.name}</h3>
+                <p><strong>Ngành được tư vấn:</strong> ${consultation.recommendedMajor || 'N/A'}</p>
+                <p><strong>Ngày tư vấn:</strong> ${new Date(consultation.date).toLocaleDateString('vi-VN')}</p>
+            </div>
+            <div class="history-actions">
+                <button class="btn btn-outline" onclick="viewResultDetail(${index})">
+                    <i class="fas fa-eye"></i> Xem chi tiết
+                </button>
+                <button class="btn btn-secondary" onclick="deleteConsultation(${index})">
+                    <i class="fas fa-trash"></i> Xóa
+                </button>
+            </div>
+        </div>
+    `;
+    
+    return item;
+}
+
+function setupExportFunctions() {
+    const exportPDF = document.getElementById('exportPDF');
+    const exportExcel = document.getElementById('exportExcel');
+    const clearHistory = document.getElementById('clearHistory');
+    
+    if (exportPDF) {
+        exportPDF.addEventListener('click', exportToPDF);
+    }
+    
+    if (exportExcel) {
+        exportExcel.addEventListener('click', exportToExcel);
+    }
+    
+    if (clearHistory) {
+        clearHistory.addEventListener('click', clearConsultationHistory);
+    }
+}
+
+function exportToPDF() {
+    // Implementation for PDF export
+    alert('Tính năng xuất PDF sẽ được phát triển trong phiên bản tiếp theo');
+}
+
+function exportToExcel() {
+    // Implementation for Excel export
+    alert('Tính năng xuất Excel sẽ được phát triển trong phiên bản tiếp theo');
+}
+
+function clearConsultationHistory() {
+    if (confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử tư vấn?')) {
+        consultationHistory = [];
+        localStorage.setItem('consultationHistory', JSON.stringify(consultationHistory));
+        displayResultsStatistics();
+        displayConsultationHistory();
+        alert('Đã xóa toàn bộ lịch sử tư vấn');
+    }
+}
+
+function setupResultModal() {
+    const modal = document.getElementById('resultModal');
+    const closeBtn = document.getElementById('closeResultModal');
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('show');
+        });
+    }
+    
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+    }
+}
+
+function viewResultDetail(index) {
+    const consultation = consultationHistory[index];
+    if (!consultation) return;
+    
+    const modal = document.getElementById('resultModal');
+    const detailName = document.getElementById('detailName');
+    const detailDate = document.getElementById('detailDate');
+    const detailInterests = document.getElementById('detailInterests');
+    const detailSkills = document.getElementById('detailSkills');
+    const detailRecommendation = document.getElementById('detailRecommendation');
+    
+    if (detailName) detailName.textContent = consultation.name;
+    if (detailDate) detailDate.textContent = new Date(consultation.date).toLocaleDateString('vi-VN');
+    if (detailInterests) detailInterests.textContent = consultation.interests || 'N/A';
+    if (detailSkills) detailSkills.textContent = consultation.skills || 'N/A';
+    if (detailRecommendation) detailRecommendation.innerHTML = consultation.aiResponse || 'N/A';
+    
+    // Create skill chart for this consultation
+    createDetailSkillChart(consultation);
+    
+    modal.classList.add('show');
+}
+
+function createDetailSkillChart(consultation) {
+    const ctx = document.getElementById('detailSkillChart');
+    if (!ctx) return;
+    
+    const skillData = {
+        'Yêu thích công nghệ': consultation.techInterest || 3,
+        'Khả năng sáng tạo': consultation.creativity || 3,
+        'Kỹ năng giao tiếp': consultation.communication || 3,
+        'Tư duy logic': consultation.logic || 3
+    };
+    
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: Object.keys(skillData),
+            datasets: [{
+                label: 'Kỹ năng cá nhân',
+                data: Object.values(skillData),
+                backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                borderColor: '#667eea',
+                borderWidth: 2,
+                pointBackgroundColor: '#667eea',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+
+function deleteConsultation(index) {
+    if (confirm('Bạn có chắc chắn muốn xóa kết quả tư vấn này?')) {
+        consultationHistory.splice(index, 1);
+        localStorage.setItem('consultationHistory', JSON.stringify(consultationHistory));
+        displayResultsStatistics();
+        displayConsultationHistory();
+        alert('Đã xóa kết quả tư vấn');
+    }
+}
+
+// About page functionality
+function setupContactForm() {
+    const contactForm = document.getElementById('contactForm');
+    if (!contactForm) return;
+    
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(this);
+        const name = formData.get('name') || this.querySelector('input[type="text"]').value;
+        const email = formData.get('email') || this.querySelector('input[type="email"]').value;
+        const subject = formData.get('subject') || this.querySelectorAll('input[type="text"]')[1].value;
+        const message = formData.get('message') || this.querySelector('textarea').value;
+        
+        // Simulate form submission
+        alert(`Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.\n\nThông tin đã gửi:\nTên: ${name}\nEmail: ${email}\nTiêu đề: ${subject}`);
+        
+        // Reset form
+        this.reset();
+    });
+}
+
+// Chat functionality
+function setupChatHandling() {
+    const chatInput = document.getElementById('chatInput');
+    const sendButton = document.getElementById('sendMessage');
+    const attachFileBtn = document.getElementById('attachFile');
+    const attachImageBtn = document.getElementById('attachImage');
+    const fileInput = document.getElementById('fileInput');
+    const imageInput = document.getElementById('imageInput');
+
+    // Send message on button click
+    sendButton.addEventListener('click', sendChatMessage);
+    
+    // Send message on Enter key
+    chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendChatMessage();
+        }
+    });
+
+    // Auto-resize input and enable/disable send button
+    chatInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        
+        // Enable/disable send button
+        const sendBtn = document.getElementById('sendMessage');
+        sendBtn.disabled = !this.value.trim();
+    });
+
+    // File upload handlers
+    attachFileBtn.addEventListener('click', () => fileInput.click());
+    attachImageBtn.addEventListener('click', () => imageInput.click());
+    
+    fileInput.addEventListener('change', handleFileUpload);
+    imageInput.addEventListener('change', handleImageUpload);
+}
+
+function sendChatMessage() {
+    const chatInput = document.getElementById('chatInput');
+    const message = chatInput.value.trim();
+    
+    if (!message || isTyping) return;
+    
+    // Add user message to chat
+    addMessageToChat('user', message);
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+    document.getElementById('sendMessage').disabled = true;
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // Generate AI response with streaming
+    generateStreamingAIResponse(message);
+}
+
+function addMessageToChat(sender, message, isStreaming = false) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    if (isStreaming) {
+        messageDiv.id = 'streamingMessage';
+        currentStreamingMessage = messageDiv;
+    }
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    
+    const header = document.createElement('div');
+    header.className = 'message-header';
+    
+    const senderName = document.createElement('span');
+    senderName.className = 'sender-name';
+    
+    const messageTime = document.createElement('span');
+    messageTime.className = 'message-time';
+    
+    const textDiv = document.createElement('div');
+    textDiv.className = 'message-text';
+    
+    if (sender === 'user') {
+        avatar.innerHTML = '<i class="fas fa-user"></i>';
+        senderName.textContent = 'Bạn';
+        messageTime.textContent = getCurrentTime();
+        textDiv.innerHTML = `<p>${escapeHtml(message)}</p>`;
+    } else {
+        avatar.innerHTML = '<i class="fas fa-robot"></i>';
+        senderName.textContent = 'AI Tư Vấn';
+        messageTime.textContent = getCurrentTime();
+        // Render markdown for AI messages
+        textDiv.innerHTML = marked.parse(message);
+    }
+    
+    header.appendChild(senderName);
+    header.appendChild(messageTime);
+    content.appendChild(header);
+    content.appendChild(textDiv);
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(content);
+    chatMessages.appendChild(messageDiv);
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Add to history
+    chatHistory.push({ sender, message, timestamp: new Date() });
+}
+
+function addStreamingContent(content) {
+    if (currentStreamingMessage) {
+        const textDiv = currentStreamingMessage.querySelector('.message-text');
+        if (textDiv) {
+            // Render markdown for streaming content
+            textDiv.innerHTML = marked.parse(content);
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    }
+}
+
+function showTypingIndicator() {
+    const chatMessages = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message ai-message typing-indicator-container';
+    typingDiv.id = 'typingIndicator';
+    
+    typingDiv.innerHTML = `
+        <div class="message-avatar">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+    `;
+    
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    isTyping = true;
+}
+
+function hideTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+    isTyping = false;
+}
+
+async function generateStreamingAIResponse(userMessage) {
+    try {
+        const prompt = createChatPrompt(userMessage);
+        
+        // Create streaming message
+        addMessageToChat('ai', '', true);
+        hideTypingIndicator();
+        
+        // Simulate streaming response
+        const response = await callAIAPI(prompt);
+        let currentText = '';
+        const words = response.split(' ');
+        
+        for (let i = 0; i < words.length; i++) {
+            currentText += words[i] + ' ';
+            addStreamingContent(currentText.trim());
+            await new Promise(resolve => setTimeout(resolve, 50)); // 50ms delay between words
+        }
+        
+        // Finalize streaming message
+        if (currentStreamingMessage) {
+            currentStreamingMessage.id = '';
+            currentStreamingMessage = null;
+        }
+        
+        // Check if AI suggests filling the form
+        if (response.toLowerCase().includes('điền form') || 
+            response.toLowerCase().includes('thông tin') ||
+            response.toLowerCase().includes('form')) {
+            setTimeout(() => {
+                addMessageToChat('ai', '💡 <strong>Gợi ý:</strong> Bạn có thể điền thông tin chi tiết hơn trong form bên trái để nhận được tư vấn chính xác hơn về ngành học phù hợp!');
+            }, 1000);
+        }
+    } catch (error) {
+        console.error('Chat AI Error:', error);
+        hideTypingIndicator();
+        addMessageToChat('ai', 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại sau hoặc sử dụng form tư vấn bên trái.');
+    }
+}
+
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        addFileMessage('user', file);
+        // Process file with AI
+        processFileWithAI(file);
+    }
+    event.target.value = ''; // Reset input
+}
+
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        addImageMessage('user', file);
+        // Process image with AI
+        processImageWithAI(file);
+    }
+    event.target.value = ''; // Reset input
+}
+
+function addFileMessage(sender, file) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    
+    const header = document.createElement('div');
+    header.className = 'message-header';
+    
+    const senderName = document.createElement('span');
+    senderName.className = 'sender-name';
+    senderName.textContent = sender === 'user' ? 'Bạn' : 'AI Tư Vấn';
+    
+    const messageTime = document.createElement('span');
+    messageTime.className = 'message-time';
+    messageTime.textContent = getCurrentTime();
+    
+    const fileDiv = document.createElement('div');
+    fileDiv.className = 'message-file';
+    
+    const fileInfo = document.createElement('div');
+    fileInfo.className = 'file-info';
+    
+    const fileIcon = document.createElement('div');
+    fileIcon.className = 'file-icon';
+    fileIcon.innerHTML = '<i class="fas fa-file"></i>';
+    
+    const fileDetails = document.createElement('div');
+    fileDetails.className = 'file-details';
+    
+    const fileName = document.createElement('div');
+    fileName.className = 'file-name';
+    fileName.textContent = file.name;
+    
+    const fileSize = document.createElement('div');
+    fileSize.className = 'file-size';
+    fileSize.textContent = formatFileSize(file.size);
+    
+    fileDetails.appendChild(fileName);
+    fileDetails.appendChild(fileSize);
+    fileInfo.appendChild(fileIcon);
+    fileInfo.appendChild(fileDetails);
+    fileDiv.appendChild(fileInfo);
+    
+    header.appendChild(senderName);
+    header.appendChild(messageTime);
+    content.appendChild(header);
+    content.appendChild(fileDiv);
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(content);
+    chatMessages.appendChild(messageDiv);
+    
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function addImageMessage(sender, file) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    
+    const header = document.createElement('div');
+    header.className = 'message-header';
+    
+    const senderName = document.createElement('span');
+    senderName.className = 'sender-name';
+    senderName.textContent = sender === 'user' ? 'Bạn' : 'AI Tư Vấn';
+    
+    const messageTime = document.createElement('span');
+    messageTime.className = 'message-time';
+    messageTime.textContent = getCurrentTime();
+    
+    const imageDiv = document.createElement('div');
+    imageDiv.style.marginTop = '8px';
+    
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    img.style.maxWidth = '200px';
+    img.style.maxHeight = '200px';
+    img.style.borderRadius = '8px';
+    img.style.cursor = 'pointer';
+    
+    img.addEventListener('click', () => {
+        // Open image in new tab
+        window.open(img.src, '_blank');
+    });
+    
+    imageDiv.appendChild(img);
+    
+    header.appendChild(senderName);
+    header.appendChild(messageTime);
+    content.appendChild(header);
+    content.appendChild(imageDiv);
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(content);
+    chatMessages.appendChild(messageDiv);
+    
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+async function processFileWithAI(file) {
+    try {
+        showTypingIndicator();
+        
+        // Simulate AI processing file
+        setTimeout(() => {
+            hideTypingIndicator();
+            addMessageToChat('ai', `Tôi đã nhận được file **${file.name}** của bạn. Đây là một file ${file.type || 'không xác định'}. Bạn có muốn tôi phân tích nội dung file này để tư vấn ngành học phù hợp không?`);
+        }, 2000);
+    } catch (error) {
+        console.error('File processing error:', error);
+        hideTypingIndicator();
+        addMessageToChat('ai', 'Xin lỗi, tôi không thể xử lý file này. Vui lòng thử lại với file khác.');
+    }
+}
+
+async function processImageWithAI(file) {
+    try {
+        showTypingIndicator();
+        
+        // Simulate AI processing image
+        setTimeout(() => {
+            hideTypingIndicator();
+            addMessageToChat('ai', `Tôi đã nhận được ảnh của bạn. Đây là một ảnh ${file.type.split('/')[1].toUpperCase()}. Bạn có muốn tôi phân tích ảnh này để tư vấn ngành học phù hợp không?`);
+        }, 2000);
+    } catch (error) {
+        console.error('Image processing error:', error);
+        hideTypingIndicator();
+        addMessageToChat('ai', 'Xin lỗi, tôi không thể xử lý ảnh này. Vui lòng thử lại với ảnh khác.');
+    }
+}
+
+function getCurrentTime() {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function createChatPrompt(userMessage) {
+    const majorsList = MAJORS_DATA.majors ? MAJORS_DATA.majors.map(m => m.name).join(', ') : 'Công nghệ thông tin, Thiết kế đồ họa, Marketing, Quản trị kinh doanh, Kế toán, Du lịch, Ngôn ngữ Anh';
+    
+    return `Bạn là AI tư vấn viên của FPT Polytechnic. Hãy trả lời câu hỏi của sinh viên một cách thân thiện và hữu ích.
+
+Thông tin về các ngành học tại FPT Polytechnic: ${majorsList}
+
+Câu hỏi của sinh viên: "${userMessage}"
+
+Hãy trả lời bằng tiếng Việt, ngắn gọn (dưới 200 từ) và khuyến khích sinh viên điền form để nhận tư vấn chi tiết hơn. Nếu sinh viên hỏi về ngành học cụ thể, hãy giải thích về ngành đó và triển vọng nghề nghiệp. Sử dụng markdown để format text đẹp mắt.`;
+}
+
+// Thiết lập xử lý form
+function setupFormHandling() {
+    const form = document.getElementById('consultationForm');
+    form.addEventListener('submit', handleFormSubmit);
+}
+
+// Xử lý submit form
+async function handleFormSubmit(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const userData = Object.fromEntries(formData.entries());
+    
+    // Hiển thị loading
+    showLoading();
+    
+    try {
+        // Gọi AI để phân tích
+        const aiResponse = await analyzeWithAI(userData);
+        
+        // Lưu kết quả
+        const result = {
+            id: Date.now(),
+            timestamp: new Date().toISOString(),
+            userData: userData,
+            aiResponse: aiResponse
+        };
+        
+        consultationHistory.push(result);
+        localStorage.setItem('consultationHistory', JSON.stringify(consultationHistory));
+        
+        // Hiển thị kết quả
+        displayResults(result);
+        
+        // Cập nhật thống kê
+        updateStatistics();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Có lỗi xảy ra khi phân tích. Vui lòng thử lại.');
+    }
+}
+
+// Gọi AI API
+async function analyzeWithAI(userData) {
+    const prompt = createAIPrompt(userData);
+    
+    const response = await fetch(AI_CONFIG.apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${AI_CONFIG.apiKey}`
+        },
+        body: JSON.stringify({
+            model: AI_CONFIG.model,
+            messages: [
+                {
+                    role: "system",
+                    content: "Bạn là một chuyên gia tư vấn hướng nghiệp tại FPT Polytechnic. Hãy phân tích thông tin học sinh và đưa ra lời khuyên về ngành học phù hợp nhất."
+                },
+                {
+                    role: "user",
+                    content: prompt
+                }
+            ],
+            max_tokens: 1000,
+            temperature: 0.7
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+}
+
+// Tạo prompt cho AI
+function createAIPrompt(userData) {
+    const majorsList = MAJORS_DATA.majors ? MAJORS_DATA.majors.map(m => m.name).join(', ') : 'Công nghệ thông tin, Kỹ thuật phần mềm, An toàn thông tin, Thiết kế đồ họa, Quản trị kinh doanh, Marketing, Tài chính - Ngân hàng, Kế toán, Du lịch - Khách sạn, Ngôn ngữ Anh, Ngôn ngữ Nhật, Ngôn ngữ Hàn Quốc, Công nghệ thực phẩm, Công nghệ sinh học, Điện tử - Viễn thông, Cơ điện tử, Xây dựng, Kiến trúc';
+    
+    return `
+Hãy phân tích thông tin sau và đưa ra lời khuyên về ngành học phù hợp nhất từ danh sách ngành học của FPT Polytechnic:
+
+THÔNG TIN HỌC SINH:
+- Họ tên: ${userData.name}
+- Sở thích: ${userData.interests}
+- Kỹ năng/Tố chất: ${userData.skills}
+- Môn học yêu thích: ${userData.favoriteSubjects}
+- Định hướng nghề nghiệp: ${userData.careerOrientation}
+- Thói quen học tập: ${userData.studyHabits}
+- Yêu thích công nghệ: ${userData.techInterest}/5
+- Khả năng sáng tạo: ${userData.creativity}/5
+- Kỹ năng giao tiếp: ${userData.communication}/5
+- Tư duy logic: ${userData.logic}/5
+
+DANH SÁCH NGÀNH HỌC FPT POLYTECHNIC:
+${majorsList}
+
+Hãy trả lời theo format sau:
+1. NGÀNH HỌC PHÙ HỢP NHẤT: [Tên ngành]
+2. LÝ DO: [Giải thích ngắn gọn tại sao phù hợp]
+3. KỸ NĂNG CẦN CẢI THIỆN: [Liệt kê 2-3 kỹ năng cần phát triển]
+4. MÔN HỌC NÊN TẬP TRUNG: [Liệt kê 2-3 môn học quan trọng]
+5. ĐIỂM MẠNH: [Liệt kê 2-3 điểm mạnh của học sinh]
+`;
+}
+
+// Hiển thị loading
+function showLoading() {
+    document.getElementById('resultSection').classList.add('show');
+    document.getElementById('loadingResult').style.display = 'block';
+    document.getElementById('majorRecommendation').style.display = 'none';
+    document.getElementById('infographic').style.display = 'none';
+    document.getElementById('qrSection').style.display = 'none';
+}
+
+// Hiển thị kết quả
+function displayResults(result) {
+    document.getElementById('loadingResult').style.display = 'none';
+    
+    // Parse AI response
+    const aiResponse = result.aiResponse;
+    const majorMatch = aiResponse.match(/NGÀNH HỌC PHÙ HỢP NHẤT:\s*(.+)/);
+    const reasonMatch = aiResponse.match(/LÝ DO:\s*(.+)/);
+    const skillsMatch = aiResponse.match(/KỸ NĂNG CẦN CẢI THIỆN:\s*(.+)/);
+    const subjectsMatch = aiResponse.match(/MÔN HỌC NÊN TẬP TRUNG:\s*(.+)/);
+    const strengthsMatch = aiResponse.match(/ĐIỂM MẠNH:\s*(.+)/);
+    
+    // Hiển thị ngành học được khuyến nghị
+    const recommendedMajor = majorMatch ? majorMatch[1].trim() : 'Chưa xác định';
+    document.getElementById('recommendedMajor').textContent = recommendedMajor;
+    document.getElementById('majorRecommendation').style.display = 'block';
+    
+    // Hiển thị thông tin chi tiết về ngành học
+    displayMajorDetails(recommendedMajor, aiResponse);
+    
+    // Tạo biểu đồ kỹ năng
+    createSkillChart(result.userData);
+    document.getElementById('infographic').style.display = 'block';
+    
+    // Tạo QR code
+    createQRCode(result);
+    document.getElementById('qrSection').style.display = 'block';
+}
+
+// Hiển thị thông tin chi tiết về ngành học
+function displayMajorDetails(majorName, aiResponse) {
+    // Tìm thông tin ngành học từ JSON
+    const majorInfo = MAJORS_DATA.majors ? MAJORS_DATA.majors.find(m => m.name === majorName) : null;
+    
+    // Parse AI response để lấy thông tin bổ sung
+    const reasonMatch = aiResponse.match(/LÝ DO:\s*(.+)/);
+    const skillsMatch = aiResponse.match(/KỸ NĂNG CẦN CẢI THIỆN:\s*(.+)/);
+    const subjectsMatch = aiResponse.match(/MÔN HỌC NÊN TẬP TRUNG:\s*(.+)/);
+    const strengthsMatch = aiResponse.match(/ĐIỂM MẠNH:\s*(.+)/);
+    
+    // Tạo nội dung chi tiết
+    let detailsHTML = '';
+    
+    if (reasonMatch) {
+        detailsHTML += `<p><strong>Lý do phù hợp:</strong> ${reasonMatch[1].trim()}</p>`;
+    }
+    
+    if (skillsMatch) {
+        detailsHTML += `<p><strong>Kỹ năng cần cải thiện:</strong> ${skillsMatch[1].trim()}</p>`;
+    }
+    
+    if (subjectsMatch) {
+        detailsHTML += `<p><strong>Môn học nên tập trung:</strong> ${subjectsMatch[1].trim()}</p>`;
+    }
+    
+    if (strengthsMatch) {
+        detailsHTML += `<p><strong>Điểm mạnh của bạn:</strong> ${strengthsMatch[1].trim()}</p>`;
+    }
+    
+    // Thêm thông tin từ JSON nếu có
+    if (majorInfo && majorInfo.skills) {
+        detailsHTML += `<p><strong>Kỹ năng cần có:</strong></p><ul>`;
+        majorInfo.skills.forEach(skill => {
+            detailsHTML += `<li>${skill}</li>`;
+        });
+        detailsHTML += `</ul>`;
+    }
+    
+    // Hiển thị thông tin chi tiết
+    const detailsContainer = document.getElementById('majorRecommendation');
+    if (detailsHTML) {
+        detailsContainer.innerHTML += `<div style="margin-top: 20px; text-align: left; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">${detailsHTML}</div>`;
+    }
+}
+
+// Tạo biểu đồ kỹ năng
+function createSkillChart(userData) {
+    const ctx = document.getElementById('skillChart').getContext('2d');
+    
+    if (skillChart) {
+        skillChart.destroy();
+    }
+    
+    const skills = {
+        'Công nghệ': parseInt(userData.techInterest) || 0,
+        'Sáng tạo': parseInt(userData.creativity) || 0,
+        'Giao tiếp': parseInt(userData.communication) || 0,
+        'Logic': parseInt(userData.logic) || 0
+    };
+    
+    skillChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: Object.keys(skills),
+            datasets: [{
+                label: 'Điểm số kỹ năng',
+                data: Object.values(skills),
+                backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                borderColor: 'rgba(102, 126, 234, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgba(102, 126, 234, 1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+// Tạo QR code
+function createQRCode(result) {
+    const qrContainer = document.getElementById('qrCode');
+    const qrData = JSON.stringify({
+        name: result.userData.name,
+        major: result.aiResponse,
+        timestamp: result.timestamp
+    });
+    
+    // Sử dụng QR Server API để tạo QR code
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
+    
+    qrContainer.innerHTML = `<img src="${qrUrl}" alt="QR Code" style="max-width: 200px;">`;
+}
+
+// Cập nhật thống kê
+function updateStatistics() {
+    const majorCounts = {};
+    
+    consultationHistory.forEach(result => {
+        const aiResponse = result.aiResponse;
+        const majorMatch = aiResponse.match(/NGÀNH HỌC PHÙ HỢP NHẤT:\s*(.+)/);
+        if (majorMatch) {
+            const major = majorMatch[1].trim();
+            majorCounts[major] = (majorCounts[major] || 0) + 1;
+        }
+    });
+    
+    updateStatsChart(majorCounts);
+}
+
+// Cập nhật biểu đồ thống kê
+function updateStatsChart(majorCounts) {
+    const ctx = document.getElementById('statsChart').getContext('2d');
+    
+    if (statsChart) {
+        statsChart.destroy();
+    }
+    
+    const labels = Object.keys(majorCounts);
+    const data = Object.values(majorCounts);
+    
+    statsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Số lượng học sinh',
+                data: data,
+                backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                borderColor: 'rgba(102, 126, 234, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+// Khởi tạo biểu đồ
+function initializeCharts() {
+    updateStatistics();
+}
+
+// Load lịch sử tư vấn
+function loadConsultationHistory() {
+    if (consultationHistory.length > 0) {
+        updateStatistics();
+    }
+}
+
+// Hiển thị lỗi
+function showError(message) {
+    document.getElementById('loadingResult').style.display = 'none';
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error';
+    errorDiv.textContent = message;
+    
+    const resultSection = document.getElementById('resultSection');
+    resultSection.classList.add('show');
+    resultSection.insertBefore(errorDiv, resultSection.firstChild);
+    
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 5000);
+}
+
+// Hiển thị thành công
+function showSuccess(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success';
+    successDiv.textContent = message;
+    
+    const resultSection = document.getElementById('resultSection');
+    resultSection.insertBefore(successDiv, resultSection.firstChild);
+    
+    setTimeout(() => {
+        successDiv.remove();
+    }, 3000);
+}
+
+// Khởi tạo trang
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadMajorsData();
+    initializeMultiPage();
+    initializeCharts();
+    setupFormHandling();
+    setupChatHandling();
+    loadConsultationHistory();
+});

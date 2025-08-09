@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ngành Học - FPT Polytechnic</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>FPT Polytechnic</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home"></i> Trang chủ
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="consultation.html" class="nav-link">
+                        <i class="fas fa-user-edit"></i> Tư vấn
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="chat.html" class="nav-link">
+                        <i class="fas fa-comments"></i> Chat AI
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="majors.html" class="nav-link active">
+                        <i class="fas fa-book"></i> Ngành học
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="results.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Kết quả
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="about.html" class="nav-link">
+                        <i class="fas fa-info-circle"></i> Giới thiệu
+                    </a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-book"></i> Ngành Học FPT Polytechnic</h1>
+            <p>Khám phá các ngành học đa dạng và chương trình đào tạo chất lượng</p>
+        </div>
+    </section>
+
+    <!-- Search and Filter -->
+    <section class="search-filter">
+        <div class="container">
+            <div class="search-box">
+                <input type="text" id="majorSearch" placeholder="Tìm kiếm ngành học...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">Tất cả</button>
+                <button class="filter-btn" data-filter="technology">Công nghệ</button>
+                <button class="filter-btn" data-filter="business">Kinh doanh</button>
+                <button class="filter-btn" data-filter="design">Thiết kế</button>
+                <button class="filter-btn" data-filter="marketing">Marketing</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Majors Grid -->
+    <section class="majors-section">
+        <div class="container">
+            <div class="majors-grid" id="majorsGrid">
+                <!-- Majors will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Major Details Modal -->
+    <div class="modal" id="majorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <button class="close-btn" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="major-info">
+                    <div class="major-overview">
+                        <h3>Thông tin tổng quan</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <i class="fas fa-code"></i>
+                                <span>Mã ngành: <strong id="majorCode"></strong></span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-clock"></i>
+                                <span>Thời gian: <strong>2.5 năm</strong></span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Bằng cấp: <strong>Cao đẳng</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="major-skills">
+                        <h3>Kỹ năng cần thiết</h3>
+                        <div class="skills-list" id="skillsList">
+                            <!-- Skills will be loaded dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div class="major-curriculum">
+                        <h3>Chương trình đào tạo</h3>
+                        <div class="curriculum-tabs">
+                            <button class="tab-btn active" data-semester="ky1">Kỳ 1</button>
+                            <button class="tab-btn" data-semester="ky2">Kỳ 2</button>
+                            <button class="tab-btn" data-semester="ky3">Kỳ 3</button>
+                            <button class="tab-btn" data-semester="ky4">Kỳ 4</button>
+                            <button class="tab-btn" data-semester="ky5">Kỳ 5</button>
+                            <button class="tab-btn" data-semester="ky6">Kỳ 6</button>
+                        </div>
+                        <div class="curriculum-content" id="curriculumContent">
+                            <!-- Curriculum will be loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="consultation.html" class="btn btn-primary">
+                    <i class="fas fa-user-edit"></i> Tư vấn ngành này
+                </a>
+                <a href="chat.html" class="btn btn-secondary">
+                    <i class="fas fa-comments"></i> Chat với AI
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>FPT Polytechnic</h3>
+                    <p>Đào tạo thực hành - Việc làm thực tế</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết nhanh</h4>
+                    <ul>
+                        <li><a href="consultation.html">Tư vấn ngành học</a></li>
+                        <li><a href="majors.html">Danh sách ngành</a></li>
+                        <li><a href="chat.html">Chat với AI</a></li>
+                        <li><a href="about.html">Giới thiệu</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Hỗ trợ</h4>
+                    <ul>
+                        <li><a href="#">Hướng dẫn sử dụng</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                        <li><a href="#">Báo lỗi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Thông tin liên hệ</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> 391A Nam Kỳ Khởi Nghĩa, Q.3, TP.HCM</p>
+                    <p><i class="fas fa-phone"></i> (028) 7300 1866</p>
+                    <p><i class="fas fa-envelope"></i> poly@fpt.edu.vn</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 FPT Polytechnic. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

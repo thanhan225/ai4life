@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết Quả Tư Vấn - FPT Polytechnic</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>FPT Polytechnic</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home"></i> Trang chủ
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="consultation.html" class="nav-link">
+                        <i class="fas fa-user-edit"></i> Tư vấn
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="chat.html" class="nav-link">
+                        <i class="fas fa-comments"></i> Chat AI
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="majors.html" class="nav-link">
+                        <i class="fas fa-book"></i> Ngành học
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="results.html" class="nav-link active">
+                        <i class="fas fa-chart-line"></i> Kết quả
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="about.html" class="nav-link">
+                        <i class="fas fa-info-circle"></i> Giới thiệu
+                    </a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-chart-line"></i> Kết Quả Tư Vấn</h1>
+            <p>Xem lại lịch sử tư vấn và kết quả đã lưu</p>
+        </div>
+    </section>
+
+    <!-- Results Content -->
+    <div class="container">
+        <div class="results-content">
+            <!-- Statistics Section -->
+            <section class="stats-overview">
+                <h2><i class="fas fa-chart-bar"></i> Thống Kê Tổng Quan</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalConsultations">0</h3>
+                            <p>Tổng số lần tư vấn</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalMajors">0</h3>
+                            <p>Ngành học được tư vấn</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="thisMonth">0</h3>
+                            <p>Tư vấn tháng này</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="avgRating">0</h3>
+                            <p>Đánh giá trung bình</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Popular Majors Chart -->
+            <section class="popular-majors-chart">
+                <h2><i class="fas fa-chart-pie"></i> Ngành Học Phổ Biến</h2>
+                <div class="chart-container">
+                    <canvas id="popularMajorsChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Consultation History -->
+            <section class="consultation-history">
+                <h2><i class="fas fa-history"></i> Lịch Sử Tư Vấn</h2>
+                <div class="history-filters">
+                    <button class="filter-btn active" data-filter="all">Tất cả</button>
+                    <button class="filter-btn" data-filter="recent">Gần đây</button>
+                    <button class="filter-btn" data-filter="favorite">Yêu thích</button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- History items will be loaded dynamically -->
+                </div>
+            </section>
+
+            <!-- Export Section -->
+            <section class="export-section">
+                <h2><i class="fas fa-download"></i> Xuất Dữ Liệu</h2>
+                <div class="export-options">
+                    <button class="btn btn-primary" id="exportPDF">
+                        <i class="fas fa-file-pdf"></i> Xuất PDF
+                    </button>
+                    <button class="btn btn-secondary" id="exportExcel">
+                        <i class="fas fa-file-excel"></i> Xuất Excel
+                    </button>
+                    <button class="btn btn-outline" id="clearHistory">
+                        <i class="fas fa-trash"></i> Xóa lịch sử
+                    </button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Result Detail Modal -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Chi Tiết Kết Quả Tư Vấn</h2>
+                <button class="close-btn" id="closeResultModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="result-detail">
+                    <div class="user-info">
+                        <h3>Thông tin người tư vấn</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <strong>Tên:</strong> <span id="detailName"></span>
+                            </div>
+                            <div class="info-item">
+                                <strong>Ngày tư vấn:</strong> <span id="detailDate"></span>
+                            </div>
+                            <div class="info-item">
+                                <strong>Sở thích:</strong> <span id="detailInterests"></span>
+                            </div>
+                            <div class="info-item">
+                                <strong>Kỹ năng:</strong> <span id="detailSkills"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation-detail">
+                        <h3>Kết quả tư vấn</h3>
+                        <div class="recommendation-content" id="detailRecommendation">
+                            <!-- Recommendation content will be loaded dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div class="skill-chart-detail">
+                        <h3>Biểu đồ kỹ năng</h3>
+                        <div class="chart-container">
+                            <canvas id="detailSkillChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="shareResult">
+                    <i class="fas fa-share"></i> Chia sẻ
+                </button>
+                <button class="btn btn-secondary" id="printResult">
+                    <i class="fas fa-print"></i> In kết quả
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>FPT Polytechnic</h3>
+                    <p>Đào tạo thực hành - Việc làm thực tế</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết nhanh</h4>
+                    <ul>
+                        <li><a href="consultation.html">Tư vấn ngành học</a></li>
+                        <li><a href="majors.html">Danh sách ngành</a></li>
+                        <li><a href="chat.html">Chat với AI</a></li>
+                        <li><a href="about.html">Giới thiệu</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Hỗ trợ</h4>
+                    <ul>
+                        <li><a href="#">Hướng dẫn sử dụng</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                        <li><a href="#">Báo lỗi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Thông tin liên hệ</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> 391A Nam Kỳ Khởi Nghĩa, Q.3, TP.HCM</p>
+                    <p><i class="fas fa-phone"></i> (028) 7300 1866</p>
+                    <p><i class="fas fa-envelope"></i> poly@fpt.edu.vn</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 FPT Polytechnic. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

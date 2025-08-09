@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tư Vấn Ngành Học - FPT Polytechnic</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>FPT Polytechnic</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home"></i> Trang chủ
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="consultation.html" class="nav-link active">
+                        <i class="fas fa-user-edit"></i> Tư vấn
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="chat.html" class="nav-link">
+                        <i class="fas fa-comments"></i> Chat AI
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="majors.html" class="nav-link">
+                        <i class="fas fa-book"></i> Ngành học
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="results.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Kết quả
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="about.html" class="nav-link">
+                        <i class="fas fa-info-circle"></i> Giới thiệu
+                    </a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-user-edit"></i> Tư Vấn Ngành Học</h1>
+            <p>Điền thông tin cá nhân để nhận tư vấn chính xác từ AI</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="main-content">
+            <div class="form-section">
+                <h2><i class="fas fa-user-edit"></i> Thông Tin Cá Nhân</h2>
+                <form id="consultationForm">
+                    <div class="form-group">
+                        <label for="name">Họ và tên:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="interests">Sở thích:</label>
+                        <textarea id="interests" name="interests" rows="3" placeholder="Ví dụ: Lập trình, thiết kế, kinh doanh, nghệ thuật..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="skills">Kỹ năng/Tố chất:</label>
+                        <textarea id="skills" name="skills" rows="3" placeholder="Ví dụ: Tư duy logic, sáng tạo, giao tiếp tốt..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="favoriteSubjects">Môn học yêu thích:</label>
+                        <input type="text" id="favoriteSubjects" name="favoriteSubjects" placeholder="Toán, Văn, Tin học, Tiếng Anh...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="careerOrientation">Định hướng nghề nghiệp:</label>
+                        <select id="careerOrientation" name="careerOrientation">
+                            <option value="">Chọn định hướng</option>
+                            <option value="technology">Công nghệ thông tin</option>
+                            <option value="business">Kinh doanh</option>
+                            <option value="design">Thiết kế</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="finance">Tài chính</option>
+                            <option value="education">Giáo dục</option>
+                            <option value="healthcare">Y tế</option>
+                            <option value="other">Khác</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="studyHabits">Thói quen học tập:</label>
+                        <select id="studyHabits" name="studyHabits">
+                            <option value="">Chọn thói quen</option>
+                            <option value="independent">Tự học độc lập</option>
+                            <option value="group">Học nhóm</option>
+                            <option value="practical">Thực hành nhiều</option>
+                            <option value="theory">Nghiên cứu lý thuyết</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="rating-group">
+                            <label>Yêu thích công nghệ:</label>
+                            <div class="rating-input">
+                                <input type="radio" id="tech1" name="techInterest" value="1">
+                                <label for="tech1">1</label>
+                                <input type="radio" id="tech2" name="techInterest" value="2">
+                                <label for="tech2">2</label>
+                                <input type="radio" id="tech3" name="techInterest" value="3">
+                                <label for="tech3">3</label>
+                                <input type="radio" id="tech4" name="techInterest" value="4">
+                                <label for="tech4">4</label>
+                                <input type="radio" id="tech5" name="techInterest" value="5">
+                                <label for="tech5">5</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="rating-group">
+                            <label>Khả năng sáng tạo:</label>
+                            <div class="rating-input">
+                                <input type="radio" id="creative1" name="creativity" value="1">
+                                <label for="creative1">1</label>
+                                <input type="radio" id="creative2" name="creativity" value="2">
+                                <label for="creative2">2</label>
+                                <input type="radio" id="creative3" name="creativity" value="3">
+                                <label for="creative3">3</label>
+                                <input type="radio" id="creative4" name="creativity" value="4">
+                                <label for="creative4">4</label>
+                                <input type="radio" id="creative5" name="creativity" value="5">
+                                <label for="creative5">5</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="rating-group">
+                            <label>Kỹ năng giao tiếp:</label>
+                            <div class="rating-input">
+                                <input type="radio" id="comm1" name="communication" value="1">
+                                <label for="comm1">1</label>
+                                <input type="radio" id="comm2" name="communication" value="2">
+                                <label for="comm2">2</label>
+                                <input type="radio" id="comm3" name="communication" value="3">
+                                <label for="comm3">3</label>
+                                <input type="radio" id="comm4" name="communication" value="4">
+                                <label for="comm4">4</label>
+                                <input type="radio" id="comm5" name="communication" value="5">
+                                <label for="comm5">5</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="rating-group">
+                            <label>Tư duy logic:</label>
+                            <div class="rating-input">
+                                <input type="radio" id="logic1" name="logic" value="1">
+                                <label for="logic1">1</label>
+                                <input type="radio" id="logic2" name="logic" value="2">
+                                <label for="logic2">2</label>
+                                <input type="radio" id="logic3" name="logic" value="3">
+                                <label for="logic3">3</label>
+                                <input type="radio" id="logic4" name="logic" value="4">
+                                <label for="logic4">4</label>
+                                <input type="radio" id="logic5" name="logic" value="5">
+                                <label for="logic5">5</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-magic"></i> Tư Vấn Ngành Học
+                    </button>
+                </form>
+            </div>
+
+            <div class="result-section" id="resultSection">
+                <div class="result-header">
+                    <h2><i class="fas fa-chart-line"></i> Kết Quả Tư Vấn</h2>
+                </div>
+                
+                <div id="loadingResult" class="loading" style="display: none;">
+                    <i class="fas fa-spinner"></i>
+                    <p>Đang phân tích thông tin...</p>
+                </div>
+
+                <div id="majorRecommendation" class="major-recommendation" style="display: none;">
+                    <h3>Ngành học phù hợp nhất</h3>
+                    <p id="recommendedMajor"></p>
+                </div>
+
+                <div id="infographic" class="infographic" style="display: none;">
+                    <h3>Biểu đồ kỹ năng cá nhân</h3>
+                    <div class="skill-chart">
+                        <canvas id="skillChart"></canvas>
+                    </div>
+                </div>
+
+                <div id="qrSection" class="qr-section" style="display: none;">
+                    <h3>Chia sẻ kết quả</h3>
+                    <div class="qr-code" id="qrCode"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>FPT Polytechnic</h3>
+                    <p>Đào tạo thực hành - Việc làm thực tế</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết nhanh</h4>
+                    <ul>
+                        <li><a href="consultation.html">Tư vấn ngành học</a></li>
+                        <li><a href="majors.html">Danh sách ngành</a></li>
+                        <li><a href="chat.html">Chat với AI</a></li>
+                        <li><a href="about.html">Giới thiệu</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Hỗ trợ</h4>
+                    <ul>
+                        <li><a href="#">Hướng dẫn sử dụng</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                        <li><a href="#">Báo lỗi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Thông tin liên hệ</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> 391A Nam Kỳ Khởi Nghĩa, Q.3, TP.HCM</p>
+                    <p><i class="fas fa-phone"></i> (028) 7300 1866</p>
+                    <p><i class="fas fa-envelope"></i> poly@fpt.edu.vn</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 FPT Polytechnic. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

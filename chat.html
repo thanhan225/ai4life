@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat với AI - FPT Polytechnic</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>FPT Polytechnic</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home"></i> Trang chủ
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="consultation.html" class="nav-link">
+                        <i class="fas fa-user-edit"></i> Tư vấn
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="chat.html" class="nav-link active">
+                        <i class="fas fa-comments"></i> Chat AI
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="majors.html" class="nav-link">
+                        <i class="fas fa-book"></i> Ngành học
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="results.html" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Kết quả
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="about.html" class="nav-link">
+                        <i class="fas fa-info-circle"></i> Giới thiệu
+                    </a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-comments"></i> Chat với AI Tư Vấn</h1>
+            <p>Tương tác trực tiếp với AI để được tư vấn ngành học phù hợp</p>
+        </div>
+    </section>
+
+    <!-- Chat Section -->
+    <div class="container">
+        <div class="chat-section">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="chat-user-info">
+                        <div class="chat-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="chat-user-details">
+                            <h3>AI Tư Vấn FPT Polytechnic</h3>
+                            <span class="status">Đang hoạt động</span>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="action-btn" title="Tìm kiếm">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <button class="action-btn" title="Thêm">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai-message">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="sender-name">AI Tư Vấn</span>
+                                <span class="message-time">Bây giờ</span>
+                            </div>
+                            <div class="message-text">
+                                <p>Xin chào! 👋 Tôi là AI tư vấn viên của FPT Polytechnic. Hãy cho tôi biết bạn quan tâm đến lĩnh vực nào và tôi sẽ giúp bạn tìm hiểu về các ngành học phù hợp nhé! 😊</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-area">
+                    <div class="input-actions">
+                        <button class="action-btn" id="attachFile" title="Đính kèm file">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <button class="action-btn" id="attachImage" title="Gửi ảnh">
+                            <i class="fas fa-image"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="input-container">
+                        <textarea id="chatInput" placeholder="Nhập tin nhắn của bạn..." maxlength="1000"></textarea>
+                        <div class="input-actions-right">
+                            <button id="sendMessage" class="send-btn" disabled>
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Hidden file inputs -->
+                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif" style="display: none;">
+                <input type="file" id="imageInput" accept="image/*" style="display: none;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>FPT Polytechnic</h3>
+                    <p>Đào tạo thực hành - Việc làm thực tế</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết nhanh</h4>
+                    <ul>
+                        <li><a href="consultation.html">Tư vấn ngành học</a></li>
+                        <li><a href="majors.html">Danh sách ngành</a></li>
+                        <li><a href="chat.html">Chat với AI</a></li>
+                        <li><a href="about.html">Giới thiệu</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Hỗ trợ</h4>
+                    <ul>
+                        <li><a href="#">Hướng dẫn sử dụng</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                        <li><a href="#">Báo lỗi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Thông tin liên hệ</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> 391A Nam Kỳ Khởi Nghĩa, Q.3, TP.HCM</p>
+                    <p><i class="fas fa-phone"></i> (028) 7300 1866</p>
+                    <p><i class="fas fa-envelope"></i> poly@fpt.edu.vn</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 FPT Polytechnic. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
