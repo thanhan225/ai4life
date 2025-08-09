@@ -62,9 +62,7 @@ ALT/
 
 ## 🔧 Cấu hình AI
 
-```javascript
 
-```
 
 ## 📊 Danh sách ngành học FPT Polytechnic
 
