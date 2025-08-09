@@ -45,7 +45,7 @@ async function loadMajorsData() {
 // Lưu trữ dữ liệu
 let consultationHistory = JSON.parse(localStorage.getItem('consultationHistory') || '[]');
 let skillChart = null;
-let statsChart = null;
+
 
 // Chat functionality
 let chatHistory = [];
@@ -54,9 +54,11 @@ let currentStreamingMessage = null;
 
 // Multi-page functionality
 function initializeMultiPage() {
+    console.log('initializeMultiPage called');
     setupNavigation();
     setupMobileMenu();
     setupPageSpecificFeatures();
+    console.log('initializeMultiPage completed');
 }
 
 function setupNavigation() {
@@ -95,24 +97,31 @@ function setupMobileMenu() {
 
 function setupPageSpecificFeatures() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    console.log('setupPageSpecificFeatures called, current page:', currentPage);
     
     switch (currentPage) {
         case 'majors.html':
+            console.log('Setting up majors page...');
             setupMajorsPage();
             break;
         case 'results.html':
+            console.log('Setting up results page...');
             setupResultsPage();
             break;
         case 'chat.html':
+            console.log('Setting up chat page...');
             setupChatPage();
             break;
         case 'consultation.html':
+            console.log('Setting up consultation page...');
             setupConsultationPage();
             break;
         case 'about.html':
+            console.log('Setting up about page...');
             setupAboutPage();
             break;
         default:
+            console.log('Setting up home page...');
             setupHomePage();
             break;
     }
@@ -133,10 +142,20 @@ function setupMajorsPage() {
 }
 
 function setupResultsPage() {
+    console.log('setupResultsPage called');
+    // Load consultation history and ensure data is ready before displaying
     loadConsultationHistory();
-    displayResultsStatistics();
-    displayPopularMajorsChart();
-    displayConsultationHistory();
+    
+    // Use setTimeout to ensure data is loaded before displaying
+    setTimeout(() => {
+        console.log('setupResultsPage timeout executed');
+        displayResultsStatistics();
+        displayPopularMajorsChart();
+        displayTimelineChart();
+        displaySkillsChart();
+        displayConsultationHistory();
+    }, 100);
+    
     setupExportFunctions();
     setupResultModal();
 }
@@ -422,15 +441,40 @@ function setupCurriculumTabs() {
 
 // Results page functionality
 function displayResultsStatistics() {
+    console.log('displayResultsStatistics called');
+    console.log('Consultation history length:', consultationHistory.length);
+    
     const totalConsultations = document.getElementById('totalConsultations');
     const totalMajors = document.getElementById('totalMajors');
     const thisMonth = document.getElementById('thisMonth');
     const avgRating = document.getElementById('avgRating');
     
-    if (totalConsultations) totalConsultations.textContent = consultationHistory.length;
-    if (totalMajors) totalMajors.textContent = getUniqueMajorsCount();
-    if (thisMonth) thisMonth.textContent = getThisMonthConsultations();
-    if (avgRating) avgRating.textContent = getAverageRating();
+    console.log('Elements found:', {
+        totalConsultations: !!totalConsultations,
+        totalMajors: !!totalMajors,
+        thisMonth: !!thisMonth,
+        avgRating: !!avgRating
+    });
+    
+    if (totalConsultations) {
+        totalConsultations.textContent = consultationHistory.length;
+        console.log('Updated totalConsultations:', consultationHistory.length);
+    }
+    if (totalMajors) {
+        const majorsCount = getUniqueMajorsCount();
+        totalMajors.textContent = majorsCount;
+        console.log('Updated totalMajors:', majorsCount);
+    }
+    if (thisMonth) {
+        const monthCount = getThisMonthConsultations();
+        thisMonth.textContent = monthCount;
+        console.log('Updated thisMonth:', monthCount);
+    }
+    if (avgRating) {
+        const avg = getAverageRating();
+        avgRating.textContent = avg;
+        console.log('Updated avgRating:', avg);
+    }
 }
 
 function getUniqueMajorsCount() {
@@ -466,8 +510,14 @@ function getAverageRating() {
 }
 
 function displayPopularMajorsChart() {
+    console.log('displayPopularMajorsChart called');
     const ctx = document.getElementById('popularMajorsChart');
-    if (!ctx) return;
+    if (!ctx) {
+        console.log('popularMajorsChart element not found');
+        return;
+    }
+    console.log('popularMajorsChart element found, creating chart...');
+    console.log('consultationHistory length:', consultationHistory.length);
     
     const majorCounts = {};
     consultationHistory.forEach(consultation => {
@@ -477,8 +527,13 @@ function displayPopularMajorsChart() {
         }
     });
     
+    console.log('Major counts for chart:', majorCounts);
+    
     const labels = Object.keys(majorCounts);
     const data = Object.values(majorCounts);
+    
+    console.log('Chart labels:', labels);
+    console.log('Chart data:', data);
     
     new Chart(ctx, {
         type: 'doughnut',
@@ -511,9 +566,210 @@ function displayPopularMajorsChart() {
     });
 }
 
+function displayTimelineChart() {
+    console.log('displayTimelineChart called');
+    const ctx = document.getElementById('timelineChart');
+    if (!ctx) {
+        console.log('timelineChart element not found');
+        return;
+    }
+    console.log('timelineChart element found, creating chart...');
+    
+    // Tạo dữ liệu timeline cho 6 tháng gần đây
+    const months = [];
+    const consultationCounts = [];
+    const currentDate = new Date();
+    
+    console.log('Creating timeline data for 6 months...');
+    
+    for (let i = 5; i >= 0; i--) {
+        const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+        const monthName = date.toLocaleDateString('vi-VN', { month: 'short' });
+        months.push(monthName);
+        
+        // Đếm số lần tư vấn trong tháng đó
+        const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+        const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        
+        const count = consultationHistory.filter(consultation => {
+            const consultationDate = new Date(consultation.date);
+            return consultationDate >= monthStart && consultationDate <= monthEnd;
+        }).length;
+        
+        consultationCounts.push(count);
+    }
+    
+    console.log('Timeline months:', months);
+    console.log('Timeline counts:', consultationCounts);
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Số lần tư vấn',
+                data: consultationCounts,
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#667eea',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#667eea',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    displayColors: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    ticks: {
+                        stepSize: 1,
+                        color: '#666'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    ticks: {
+                        color: '#666'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function displaySkillsChart() {
+    console.log('displaySkillsChart called');
+    const ctx = document.getElementById('skillsChart');
+    if (!ctx) {
+        console.log('skillsChart element not found');
+        return;
+    }
+    console.log('skillsChart element found, creating chart...');
+    
+    // Tạo dữ liệu kỹ năng phổ biến
+    const skillsData = {
+        'Lập trình': 85,
+        'Thiết kế': 72,
+        'Quản lý dự án': 68,
+        'Giao tiếp': 91,
+        'Làm việc nhóm': 88,
+        'Sáng tạo': 76,
+        'Phân tích': 82,
+        'Tiếng Anh': 79,
+        'Marketing': 65,
+        'Kinh doanh': 70
+    };
+    
+    console.log('Skills data:', skillsData);
+    
+    const labels = Object.keys(skillsData);
+    const data = Object.values(skillsData);
+    
+    console.log('Skills labels:', labels);
+    console.log('Skills data values:', data);
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Độ phổ biến (%)',
+                data: data,
+                backgroundColor: [
+                    '#667eea', '#764ba2', '#f093fb', '#f5576c',
+                    '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+                    '#fa709a', '#fee140'
+                ],
+                borderColor: '#fff',
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#667eea',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function(context) {
+                            return `Độ phổ biến: ${context.parsed.y}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    ticks: {
+                        stepSize: 20,
+                        color: '#666',
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#666',
+                        maxRotation: 45
+                    }
+                }
+            }
+        }
+    });
+}
+
 function displayConsultationHistory() {
+    console.log('displayConsultationHistory called');
     const historyList = document.getElementById('historyList');
-    if (!historyList) return;
+    if (!historyList) {
+        console.log('historyList element not found');
+        return;
+    }
+    console.log('historyList element found, displaying history...');
+    console.log('Consultation history length:', consultationHistory.length);
     
     historyList.innerHTML = '';
     
@@ -521,6 +777,8 @@ function displayConsultationHistory() {
         const historyItem = createHistoryItem(consultation, index);
         historyList.appendChild(historyItem);
     });
+    
+    console.log('Consultation history displayed successfully');
 }
 
 function createHistoryItem(consultation, index) {
@@ -857,6 +1115,44 @@ function hideTypingIndicator() {
     isTyping = false;
 }
 
+// Gọi AI API cho chat
+async function callAIAPI(prompt) {
+    try {
+        const response = await fetch(AI_CONFIG.apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${AI_CONFIG.apiKey}`
+            },
+            body: JSON.stringify({
+                model: AI_CONFIG.model,
+                messages: [
+                    {
+                        role: "system",
+                        content: "Bạn là một chuyên gia tư vấn hướng nghiệp tại FPT Polytechnic. Hãy trả lời các câu hỏi của học sinh một cách thân thiện và hữu ích."
+                    },
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                ],
+                max_tokens: 500,
+                temperature: 0.7
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.choices[0].message.content;
+    } catch (error) {
+        console.error('AI API Error:', error);
+        throw error;
+    }
+}
+
 async function generateStreamingAIResponse(userMessage) {
     try {
         const prompt = createChatPrompt(userMessage);
@@ -1097,7 +1393,9 @@ Hãy trả lời bằng tiếng Việt, ngắn gọn (dưới 200 từ) và khuy
 // Thiết lập xử lý form
 function setupFormHandling() {
     const form = document.getElementById('consultationForm');
-    form.addEventListener('submit', handleFormSubmit);
+    if (form) {
+        form.addEventListener('submit', handleFormSubmit);
+    }
 }
 
 // Xử lý submit form
@@ -1356,6 +1654,10 @@ function createQRCode(result) {
 
 // Cập nhật thống kê
 function updateStatistics() {
+    console.log('updateStatistics called');
+    console.log('Current page:', window.location.pathname);
+    console.log('consultationHistory length:', consultationHistory.length);
+    
     const majorCounts = {};
     
     consultationHistory.forEach(result => {
@@ -1367,62 +1669,113 @@ function updateStatistics() {
         }
     });
     
-    updateStatsChart(majorCounts);
+    console.log('Major counts:', majorCounts);
+    
+    // Không gọi updateStatsChart nữa vì element statsChart không tồn tại
+    // Thay vào đó, cập nhật các chart mới nếu đang ở trang results
+    if (window.location.pathname.includes('results.html')) {
+        console.log('On results page, calling chart functions...');
+        displayPopularMajorsChart();
+        displayTimelineChart();
+        displaySkillsChart();
+    } else {
+        console.log('Not on results page, skipping chart functions');
+    }
 }
 
-// Cập nhật biểu đồ thống kê
-function updateStatsChart(majorCounts) {
-    const ctx = document.getElementById('statsChart').getContext('2d');
-    
-    if (statsChart) {
-        statsChart.destroy();
-    }
-    
-    const labels = Object.keys(majorCounts);
-    const data = Object.values(majorCounts);
-    
-    statsChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Số lượng học sinh',
-                data: data,
-                backgroundColor: 'rgba(102, 126, 234, 0.8)',
-                borderColor: 'rgba(102, 126, 234, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                }
-            }
-        }
-    });
-}
+
 
 // Khởi tạo biểu đồ
 function initializeCharts() {
-    updateStatistics();
+    // Chỉ khởi tạo charts nếu đang ở trang results
+    if (window.location.pathname.includes('results.html')) {
+        updateStatistics();
+    }
 }
 
 // Load lịch sử tư vấn
 function loadConsultationHistory() {
+    console.log('loadConsultationHistory called');
+    const saved = localStorage.getItem('consultationHistory');
+    consultationHistory = saved ? JSON.parse(saved) : [];
+    
+    console.log('Loaded consultation history:', consultationHistory.length, 'items');
+    
+    // Thêm dữ liệu mẫu nếu chưa có dữ liệu
+    if (consultationHistory.length === 0) {
+        console.log('No data found, adding sample data...');
+        addSampleData();
+    }
+    
     if (consultationHistory.length > 0) {
+        console.log('Calling updateStatistics...');
         updateStatistics();
     }
+    
+    console.log('Consultation history loaded successfully');
+    console.log('Final consultationHistory length:', consultationHistory.length);
+}
+
+function addSampleData() {
+    console.log('addSampleData called');
+    console.log('Current consultationHistory length before adding:', consultationHistory.length);
+    const sampleData = [
+        {
+            name: 'Nguyễn Văn A',
+            interests: 'Lập trình, Công nghệ, Toán học',
+            skills: 'Lập trình Java, Tiếng Anh, Làm việc nhóm',
+            scores: { math: 8, english: 7, programming: 9 },
+            recommendedMajor: 'Công nghệ thông tin',
+            aiResponse: 'Dựa trên sở thích và kỹ năng của bạn, tôi khuyên bạn nên theo học ngành Công nghệ thông tin. Bạn có năng khiếu về lập trình và tư duy logic tốt.',
+            date: new Date(2024, 2, 15).toISOString(),
+            rating: 5
+        },
+        {
+            name: 'Trần Thị B',
+            interests: 'Thiết kế, Nghệ thuật, Sáng tạo',
+            skills: 'Photoshop, Illustrator, Sáng tạo',
+            scores: { math: 6, english: 8, programming: 5 },
+            recommendedMajor: 'Thiết kế đồ họa',
+            aiResponse: 'Với khả năng sáng tạo và yêu thích nghệ thuật, ngành Thiết kế đồ họa sẽ phù hợp với bạn. Bạn có thể phát triển tài năng thiết kế.',
+            date: new Date(2024, 3, 10).toISOString(),
+            rating: 4
+        },
+        {
+            name: 'Lê Văn C',
+            interests: 'Kinh doanh, Marketing, Giao tiếp',
+            skills: 'Giao tiếp, Lãnh đạo, Marketing',
+            scores: { math: 7, english: 9, programming: 4 },
+            recommendedMajor: 'Quản trị kinh doanh',
+            aiResponse: 'Bạn có tố chất lãnh đạo và khả năng giao tiếp tốt. Ngành Quản trị kinh doanh sẽ giúp bạn phát triển toàn diện.',
+            date: new Date(2024, 4, 5).toISOString(),
+            rating: 5
+        },
+        {
+            name: 'Phạm Thị D',
+            interests: 'Kế toán, Tài chính, Chi tiết',
+            skills: 'Tính toán, Phân tích, Cẩn thận',
+            scores: { math: 9, english: 6, programming: 3 },
+            recommendedMajor: 'Kế toán',
+            aiResponse: 'Với khả năng tính toán và sự cẩn thận, ngành Kế toán sẽ phù hợp với bạn. Bạn có thể phát triển trong lĩnh vực tài chính.',
+            date: new Date(2024, 5, 20).toISOString(),
+            rating: 4
+        },
+        {
+            name: 'Hoàng Văn E',
+            interests: 'Cơ khí, Kỹ thuật, Thực hành',
+            skills: 'Thực hành, Kỹ thuật, Làm việc nhóm',
+            scores: { math: 8, english: 5, programming: 6 },
+            recommendedMajor: 'Cơ khí',
+            aiResponse: 'Bạn có năng khiếu về kỹ thuật và thích thực hành. Ngành Cơ khí sẽ giúp bạn phát triển kỹ năng thực tế.',
+            date: new Date(2024, 6, 12).toISOString(),
+            rating: 5
+        }
+    ];
+    
+    consultationHistory = sampleData;
+    localStorage.setItem('consultationHistory', JSON.stringify(consultationHistory));
+    console.log('Sample data added. Total consultations:', consultationHistory.length);
+    console.log('Sample data details:', consultationHistory.map(c => ({ name: c.name, major: c.recommendedMajor })));
 }
 
 // Hiển thị lỗi
@@ -1456,12 +1809,35 @@ function showSuccess(message) {
     }, 3000);
 }
 
+// Debug function to clear localStorage and reload sample data
+function debugReloadData() {
+    localStorage.removeItem('consultationHistory');
+    consultationHistory = [];
+    addSampleData();
+    displayResultsStatistics();
+    displayPopularMajorsChart();
+    displayTimelineChart();
+    displaySkillsChart();
+    displayConsultationHistory();
+    console.log('Data reloaded successfully!');
+}
+
 // Khởi tạo trang
 document.addEventListener('DOMContentLoaded', async function() {
+    console.log('DOMContentLoaded event fired');
     await loadMajorsData();
+    console.log('Majors data loaded');
     initializeMultiPage();
-    initializeCharts();
+    console.log('Multi-page initialized');
     setupFormHandling();
     setupChatHandling();
     loadConsultationHistory();
+    
+    // Đảm bảo có dữ liệu mẫu nếu chưa có
+    if (consultationHistory.length === 0) {
+        console.log('No consultation history, adding sample data...');
+        addSampleData();
+    }
+    
+    console.log('DOMContentLoaded completed');
 });

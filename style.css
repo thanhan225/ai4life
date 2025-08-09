@@ -2302,6 +2302,36 @@ body {
     text-align: center;
 }
 
+/* Timeline Chart */
+.timeline-chart {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 40px;
+}
+
+.timeline-chart h2 {
+    color: #333;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* Skills Chart */
+.skills-chart {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 40px;
+}
+
+.skills-chart h2 {
+    color: #333;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .about-grid {

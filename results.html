@@ -118,6 +118,22 @@
                 </div>
             </section>
 
+            <!-- Timeline Chart -->
+            <section class="timeline-chart">
+                <h2><i class="fas fa-chart-line"></i> Xu Hướng Tư Vấn Theo Thời Gian</h2>
+                <div class="chart-container">
+                    <canvas id="timelineChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Skills Comparison Chart -->
+            <section class="skills-chart">
+                <h2><i class="fas fa-chart-bar"></i> Kỹ Năng Phổ Biến</h2>
+                <div class="chart-container">
+                    <canvas id="skillsChart"></canvas>
+                </div>
+            </section>
+
             <!-- Consultation History -->
             <section class="consultation-history">
                 <h2><i class="fas fa-history"></i> Lịch Sử Tư Vấn</h2>
@@ -143,6 +159,9 @@
                     </button>
                     <button class="btn btn-outline" id="clearHistory">
                         <i class="fas fa-trash"></i> Xóa lịch sử
+                    </button>
+                    <button class="btn btn-outline" onclick="debugReloadData()" style="background: #ff6b6b; color: white;">
+                        <i class="fas fa-bug"></i> Debug: Reload Data
                     </button>
                 </div>
             </section>
