@@ -63,11 +63,7 @@ ALT/
 ## 🔧 Cấu hình AI
 
 ```javascript
-const AI_CONFIG = {
-    apiKey: "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",
-    apiUrl: "https://openrouter.ai/api/v1/chat/completions",
-    model: "google/gemma-3-27b-it:free"
-};
+
 ```
 
 ## 📊 Danh sách ngành học FPT Polytechnic

@@ -5,6 +5,18 @@ const AI_CONFIG = {
     model: "google/gemma-3-27b-it:free"
 };
 
+// Fallback responses khi API không hoạt động
+const FALLBACK_RESPONSES = {
+    "bạn có thể làm gì": "Tôi là AI tư vấn viên của FPT Polytechnic! Tôi có thể:\n\n• **Tư vấn ngành học** phù hợp với sở thích và khả năng của bạn\n• **Giải thích chi tiết** về các ngành học tại FPT Polytechnic\n• **Hướng dẫn** quy trình đăng ký và học tập\n• **Trả lời câu hỏi** về chương trình đào tạo\n\nBạn quan tâm đến lĩnh vực nào? Tôi sẽ giúp bạn tìm hiểu!",
+    "công nghệ thông tin": "**Ngành Công nghệ thông tin** tại FPT Polytechnic:\n\n• **Thời gian đào tạo:** 2.5 năm (5 học kỳ)\n• **Chuyên ngành:** Lập trình ứng dụng, Phát triển web, Mobile app\n• **Cơ hội việc làm:** Lập trình viên, Developer, IT Support\n• **Mức lương:** 8-15 triệu VNĐ/tháng\n\nBạn có muốn tìm hiểu thêm về ngành này không?",
+    "thiết kế đồ họa": "**Ngành Thiết kế đồ họa** tại FPT Polytechnic:\n\n• **Thời gian đào tạo:** 2.5 năm (5 học kỳ)\n• **Chuyên ngành:** Thiết kế web, UI/UX, Motion graphics\n• **Cơ hội việc làm:** Designer, Creative Director, Art Director\n• **Mức lương:** 7-12 triệu VNĐ/tháng\n\nBạn có muốn tìm hiểu thêm về ngành này không?",
+    "marketing": "**Ngành Marketing** tại FPT Polytechnic:\n\n• **Thời gian đào tạo:** 2.5 năm (5 học kỳ)\n• **Chuyên ngành:** Digital Marketing, Brand Management\n• **Cơ hội việc làm:** Marketing Specialist, Brand Manager\n• **Mức lương:** 6-12 triệu VNĐ/tháng\n\nBạn có muốn tìm hiểu thêm về ngành này không?",
+    "quản trị kinh doanh": "**Ngành Quản trị kinh doanh** tại FPT Polytechnic:\n\n• **Thời gian đào tạo:** 2.5 năm (5 học kỳ)\n• **Chuyên ngành:** Quản lý dự án, Khởi nghiệp\n• **Cơ hội việc làm:** Business Analyst, Project Manager\n• **Mức lương:** 7-15 triệu VNĐ/tháng\n\nBạn có muốn tìm hiểu thêm về ngành này không?",
+    "học phí": "**Học phí FPT Polytechnic:**\n\n• **Học phí:** ~15-20 triệu VNĐ/năm\n• **Học bổng:** Có nhiều chương trình học bổng\n• **Thanh toán:** Theo học kỳ hoặc năm\n• **Hỗ trợ:** Có chương trình vay vốn học tập\n\nBạn có muốn tìm hiểu thêm về học phí không?",
+    "tuyển sinh": "**Thông tin tuyển sinh FPT Polytechnic:**\n\n• **Phương thức xét tuyển:** Xét học bạ THPT\n• **Thời gian nhận hồ sơ:** Tháng 3-8 hàng năm\n• **Yêu cầu:** Tốt nghiệp THPT\n• **Hồ sơ cần thiết:** Bằng tốt nghiệp, học bạ, CMND\n\nBạn có muốn tìm hiểu thêm về quy trình tuyển sinh không?",
+    "default": "Xin chào! Tôi là AI tư vấn viên của FPT Polytechnic. Tôi có thể giúp bạn:\n\n• Tìm hiểu về các ngành học\n• Tư vấn chọn ngành phù hợp\n• Giải đáp thắc mắc về trường\n\nBạn muốn biết thêm thông tin gì?"
+};
+
 // Dữ liệu ngành học FPT Polytechnic
 let MAJORS_DATA = {};
 
@@ -1149,7 +1161,19 @@ async function callAIAPI(prompt) {
         return data.choices[0].message.content;
     } catch (error) {
         console.error('AI API Error:', error);
-        throw error;
+        
+        // Sử dụng fallback responses khi API không hoạt động
+        const userMessage = prompt.toLowerCase();
+        
+        // Tìm response phù hợp
+        for (const [key, value] of Object.entries(FALLBACK_RESPONSES)) {
+            if (userMessage.includes(key)) {
+                return value;
+            }
+        }
+        
+        // Trả về response mặc định
+        return FALLBACK_RESPONSES.default;
     }
 }
 
