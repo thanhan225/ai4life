@@ -23,34 +23,174 @@ let MAJORS_DATA = {};
 // Load dữ liệu ngành học từ JSON
 async function loadMajorsData() {
     try {
-        const response = await fetch('majors_curriculum.json');
+        // Thử load từ localhost server trước (để tránh CORS)
+        const response = await fetch('http://localhost:8000/majors_curriculum.json');
         const data = await response.json();
         MAJORS_DATA = data;
+        console.log('Loaded majors data from localhost server');
     } catch (error) {
-        console.warn('Không thể load dữ liệu ngành học, sử dụng dữ liệu mặc định');
-        // Fallback data
-        MAJORS_DATA = {
-            majors: [
-                { name: "Công nghệ thông tin", code: "CNTT" },
-                { name: "Kỹ thuật phần mềm", code: "KTPM" },
-                { name: "An toàn thông tin", code: "ATTT" },
-                { name: "Thiết kế đồ họa", code: "TKDH" },
-                { name: "Quản trị kinh doanh", code: "QTKD" },
-                { name: "Marketing", code: "MKT" },
-                { name: "Tài chính - Ngân hàng", code: "TCNH" },
-                { name: "Kế toán", code: "KT" },
-                { name: "Du lịch - Khách sạn", code: "DLKS" },
-                { name: "Ngôn ngữ Anh", code: "NNA" },
-                { name: "Ngôn ngữ Nhật", code: "NNN" },
-                { name: "Ngôn ngữ Hàn Quốc", code: "NNH" },
-                { name: "Công nghệ thực phẩm", code: "CNTP" },
-                { name: "Công nghệ sinh học", code: "CNSH" },
-                { name: "Điện tử - Viễn thông", code: "DTVT" },
-                { name: "Cơ điện tử", code: "CDT" },
-                { name: "Xây dựng", code: "XD" },
-                { name: "Kiến trúc", code: "KT" }
-            ]
-        };
+        console.warn('Không thể load từ localhost, thử load trực tiếp file...');
+        try {
+            const response = await fetch('majors_curriculum.json');
+            const data = await response.json();
+            MAJORS_DATA = data;
+            console.log('Loaded majors data from direct file');
+        } catch (error) {
+            console.warn('Không thể load dữ liệu ngành học, sử dụng dữ liệu mặc định');
+            // Fallback data với cấu trúc đầy đủ
+            MAJORS_DATA = {
+                majors: [
+                    {
+                        name: "Công nghệ thông tin",
+                        code: "CNTT",
+                        skills: [
+                            "Lập trình và phát triển phần mềm",
+                            "Tư duy logic và phân tích",
+                            "Kỹ năng giao tiếp",
+                            "Làm việc nhóm",
+                            "Sáng tạo và đổi mới"
+                        ],
+                        curriculum: {
+                            ky1: [
+                                { name: "Toán học cơ bản", credits: 3 },
+                                { name: "Lập trình cơ bản", credits: 4 },
+                                { name: "Tiếng Anh 1", credits: 2 }
+                            ],
+                            ky2: [
+                                { name: "Cơ sở dữ liệu", credits: 3 },
+                                { name: "Lập trình hướng đối tượng", credits: 4 },
+                                { name: "Tiếng Anh 2", credits: 2 }
+                            ],
+                            ky3: [
+                                { name: "Phát triển web", credits: 4 },
+                                { name: "Mạng máy tính", credits: 3 },
+                                { name: "Tiếng Anh 3", credits: 2 }
+                            ],
+                            ky4: [
+                                { name: "Phát triển ứng dụng di động", credits: 4 },
+                                { name: "Bảo mật thông tin", credits: 3 },
+                                { name: "Tiếng Anh 4", credits: 2 }
+                            ],
+                            ky5: [
+                                { name: "Dự án tốt nghiệp", credits: 6 },
+                                { name: "Thực tập doanh nghiệp", credits: 4 }
+                            ]
+                        }
+                    },
+                    {
+                        name: "Thiết kế đồ họa",
+                        code: "TKDH",
+                        skills: [
+                            "Thiết kế visual và digital art",
+                            "Sáng tạo và thẩm mỹ",
+                            "Kỹ năng giao tiếp",
+                            "Làm việc nhóm",
+                            "Thích ứng với công nghệ mới"
+                        ],
+                        curriculum: {
+                            ky1: [
+                                { name: "Nguyên lý thiết kế", credits: 3 },
+                                { name: "Đồ họa cơ bản", credits: 4 },
+                                { name: "Tiếng Anh 1", credits: 2 }
+                            ],
+                            ky2: [
+                                { name: "Thiết kế logo và brand", credits: 3 },
+                                { name: "Photoshop nâng cao", credits: 4 },
+                                { name: "Tiếng Anh 2", credits: 2 }
+                            ],
+                            ky3: [
+                                { name: "Thiết kế web", credits: 4 },
+                                { name: "UI/UX Design", credits: 3 },
+                                { name: "Tiếng Anh 3", credits: 2 }
+                            ],
+                            ky4: [
+                                { name: "Motion graphics", credits: 4 },
+                                { name: "InDesign", credits: 3 },
+                                { name: "Tiếng Anh 4", credits: 2 }
+                            ],
+                            ky5: [
+                                { name: "Dự án tốt nghiệp", credits: 6 },
+                                { name: "Thực tập doanh nghiệp", credits: 4 }
+                            ]
+                        }
+                    },
+                    {
+                        name: "Quản trị kinh doanh",
+                        code: "QTKD",
+                        skills: [
+                            "Quản lý và lãnh đạo",
+                            "Tư duy chiến lược",
+                            "Kỹ năng giao tiếp",
+                            "Làm việc nhóm",
+                            "Phân tích thị trường"
+                        ],
+                        curriculum: {
+                            ky1: [
+                                { name: "Nguyên lý quản trị", credits: 3 },
+                                { name: "Marketing cơ bản", credits: 4 },
+                                { name: "Tiếng Anh 1", credits: 2 }
+                            ],
+                            ky2: [
+                                { name: "Quản lý nhân sự", credits: 3 },
+                                { name: "Tài chính doanh nghiệp", credits: 4 },
+                                { name: "Tiếng Anh 2", credits: 2 }
+                            ],
+                            ky3: [
+                                { name: "Quản lý dự án", credits: 4 },
+                                { name: "Thương mại điện tử", credits: 3 },
+                                { name: "Tiếng Anh 3", credits: 2 }
+                            ],
+                            ky4: [
+                                { name: "Chiến lược kinh doanh", credits: 4 },
+                                { name: "Khởi nghiệp", credits: 3 },
+                                { name: "Tiếng Anh 4", credits: 2 }
+                            ],
+                            ky5: [
+                                { name: "Dự án tốt nghiệp", credits: 6 },
+                                { name: "Thực tập doanh nghiệp", credits: 4 }
+                            ]
+                        }
+                    },
+                    {
+                        name: "Marketing",
+                        code: "MKT",
+                        skills: [
+                            "Chiến lược marketing",
+                            "Sáng tạo và đổi mới",
+                            "Kỹ năng giao tiếp",
+                            "Phân tích dữ liệu",
+                            "Thích ứng với xu hướng"
+                        ],
+                        curriculum: {
+                            ky1: [
+                                { name: "Nguyên lý marketing", credits: 3 },
+                                { name: "Nghiên cứu thị trường", credits: 4 },
+                                { name: "Tiếng Anh 1", credits: 2 }
+                            ],
+                            ky2: [
+                                { name: "Marketing mix", credits: 3 },
+                                { name: "Digital marketing", credits: 4 },
+                                { name: "Tiếng Anh 2", credits: 2 }
+                            ],
+                            ky3: [
+                                { name: "Content marketing", credits: 4 },
+                                { name: "Social media marketing", credits: 3 },
+                                { name: "Tiếng Anh 3", credits: 2 }
+                            ],
+                            ky4: [
+                                { name: "Brand management", credits: 4 },
+                                { name: "Marketing analytics", credits: 3 },
+                                { name: "Tiếng Anh 4", credits: 2 }
+                            ],
+                            ky5: [
+                                { name: "Dự án tốt nghiệp", credits: 6 },
+                                { name: "Thực tập doanh nghiệp", credits: 4 }
+                            ]
+                        }
+                    }
+                ]
+            };
+        }
     }
 }
 
@@ -60,7 +200,7 @@ let skillChart = null;
 
 
 // Chat functionality
-let chatHistory = [];
+let chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
 let isTyping = false;
 let currentStreamingMessage = null;
 
@@ -173,8 +313,23 @@ function setupResultsPage() {
 }
 
 function setupChatPage() {
+    // Load chat history from localStorage
+    const savedHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+    chatHistory = savedHistory;
+    
+    // Display saved messages
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages && savedHistory.length > 0) {
+        chatMessages.innerHTML = '';
+        savedHistory.forEach(msg => {
+            addMessageToChat(msg.sender, msg.message, false, true);
+        });
+    } else if (chatMessages) {
+        // Add welcome message if no history
+        addMessageToChat('ai', 'Xin chào! Tôi là AI tư vấn viên của FPT Polytechnic. Tôi có thể giúp bạn:\n\n• Tìm hiểu về các ngành học\n• Tư vấn chọn ngành phù hợp\n• Giải đáp thắc mắc về trường\n\nBạn muốn biết thêm thông tin gì?', false, true);
+    }
+    
     setupChatHandling();
-    console.log('Chat page loaded');
 }
 
 function setupConsultationPage() {
@@ -977,11 +1132,13 @@ function setupContactForm() {
 function setupChatHandling() {
     const chatInput = document.getElementById('chatInput');
     const sendButton = document.getElementById('sendMessage');
-    const attachFileBtn = document.getElementById('attachFile');
-    const attachImageBtn = document.getElementById('attachImage');
-    const fileInput = document.getElementById('fileInput');
-    const imageInput = document.getElementById('imageInput');
-
+    const resetButton = document.getElementById('resetChat');
+    
+    // Check if elements exist (for non-chat pages)
+    if (!chatInput || !sendButton) {
+        return;
+    }
+    
     // Send message on button click
     sendButton.addEventListener('click', sendChatMessage);
     
@@ -999,16 +1156,13 @@ function setupChatHandling() {
         this.style.height = Math.min(this.scrollHeight, 100) + 'px';
         
         // Enable/disable send button
-        const sendBtn = document.getElementById('sendMessage');
-        sendBtn.disabled = !this.value.trim();
+        sendButton.disabled = !this.value.trim();
     });
 
-    // File upload handlers
-    attachFileBtn.addEventListener('click', () => fileInput.click());
-    attachImageBtn.addEventListener('click', () => imageInput.click());
-    
-    fileInput.addEventListener('change', handleFileUpload);
-    imageInput.addEventListener('change', handleImageUpload);
+    // Reset chat button
+    if (resetButton) {
+        resetButton.addEventListener('click', resetChatHistory);
+    }
 }
 
 function sendChatMessage() {
@@ -1028,61 +1182,6 @@ function sendChatMessage() {
     
     // Generate AI response with streaming
     generateStreamingAIResponse(message);
-}
-
-function addMessageToChat(sender, message, isStreaming = false) {
-    const chatMessages = document.getElementById('chatMessages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}-message`;
-    if (isStreaming) {
-        messageDiv.id = 'streamingMessage';
-        currentStreamingMessage = messageDiv;
-    }
-    
-    const avatar = document.createElement('div');
-    avatar.className = 'message-avatar';
-    
-    const content = document.createElement('div');
-    content.className = 'message-content';
-    
-    const header = document.createElement('div');
-    header.className = 'message-header';
-    
-    const senderName = document.createElement('span');
-    senderName.className = 'sender-name';
-    
-    const messageTime = document.createElement('span');
-    messageTime.className = 'message-time';
-    
-    const textDiv = document.createElement('div');
-    textDiv.className = 'message-text';
-    
-    if (sender === 'user') {
-        avatar.innerHTML = '<i class="fas fa-user"></i>';
-        senderName.textContent = 'Bạn';
-        messageTime.textContent = getCurrentTime();
-        textDiv.innerHTML = `<p>${escapeHtml(message)}</p>`;
-    } else {
-        avatar.innerHTML = '<i class="fas fa-robot"></i>';
-        senderName.textContent = 'AI Tư Vấn';
-        messageTime.textContent = getCurrentTime();
-        // Render markdown for AI messages
-        textDiv.innerHTML = marked.parse(message);
-    }
-    
-    header.appendChild(senderName);
-    header.appendChild(messageTime);
-    content.appendChild(header);
-    content.appendChild(textDiv);
-    messageDiv.appendChild(avatar);
-    messageDiv.appendChild(content);
-    chatMessages.appendChild(messageDiv);
-    
-    // Scroll to bottom
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    
-    // Add to history
-    chatHistory.push({ sender, message, timestamp: new Date() });
 }
 
 function addStreamingContent(content) {
@@ -1130,6 +1229,18 @@ function hideTypingIndicator() {
 // Gọi AI API cho chat
 async function callAIAPI(prompt) {
     try {
+        // Lấy 10 tin nhắn cuối cùng từ chatHistory để làm context
+        const recentMessages = chatHistory.slice(-10);
+        const contextMessages = recentMessages.map(msg => ({
+            role: msg.sender === 'user' ? 'user' : 'assistant',
+            content: msg.message
+        }));
+
+        // Tạo danh sách ngành học từ MAJORS_DATA
+        const majorsList = MAJORS_DATA.majors ? 
+            MAJORS_DATA.majors.map(m => m.name).join(', ') : 
+            'Công nghệ thông tin, Kỹ thuật phần mềm, An toàn thông tin, Thiết kế đồ họa, Quản trị kinh doanh, Marketing, Tài chính - Ngân hàng, Kế toán, Du lịch - Khách sạn, Ngôn ngữ Anh, Ngôn ngữ Nhật, Ngôn ngữ Hàn Quốc, Công nghệ thực phẩm, Công nghệ sinh học, Điện tử - Viễn thông, Cơ điện tử, Xây dựng, Kiến trúc';
+
         const response = await fetch(AI_CONFIG.apiUrl, {
             method: 'POST',
             headers: {
@@ -1141,8 +1252,26 @@ async function callAIAPI(prompt) {
                 messages: [
                     {
                         role: "system",
-                        content: "Bạn là một chuyên gia tư vấn hướng nghiệp tại FPT Polytechnic. Hãy trả lời các câu hỏi của học sinh một cách thân thiện và hữu ích."
+                        content: `Bạn là AI tư vấn viên của FPT Polytechnic. Hãy trả lời các câu hỏi của học sinh một cách thân thiện và hữu ích.
+
+THÔNG TIN VỀ FPT POLYTECHNIC:
+- Trường Cao đẳng FPT Polytechnic thuộc Tập đoàn FPT
+- Chuyên đào tạo các ngành công nghệ, kinh doanh, thiết kế
+- Thời gian đào tạo: 2.5 năm (5 học kỳ)
+- Học phí: ~15-20 triệu VNĐ/năm
+- Có nhiều chương trình học bổng và hỗ trợ
+
+DANH SÁCH NGÀNH HỌC: ${majorsList}
+
+QUY TẮC TRẢ LỜI:
+1. Trả lời trực tiếp câu hỏi, không chào hỏi lại nếu đã có context
+2. Sử dụng markdown để format text đẹp mắt
+3. Nhớ context của cuộc trò chuyện
+4. Không spam câu trả lời có sẵn
+5. Nếu hỏi về ngành cụ thể, giải thích chi tiết về ngành đó
+6. Khuyến khích điền form để tư vấn chi tiết hơn`
                     },
+                    ...contextMessages,
                     {
                         role: "user",
                         content: prompt
@@ -1161,32 +1290,18 @@ async function callAIAPI(prompt) {
         return data.choices[0].message.content;
     } catch (error) {
         console.error('AI API Error:', error);
-        
-        // Sử dụng fallback responses khi API không hoạt động
-        const userMessage = prompt.toLowerCase();
-        
-        // Tìm response phù hợp
-        for (const [key, value] of Object.entries(FALLBACK_RESPONSES)) {
-            if (userMessage.includes(key)) {
-                return value;
-            }
-        }
-        
-        // Trả về response mặc định
-        return FALLBACK_RESPONSES.default;
+        return "Xin lỗi, tôi đang gặp sự cố kỹ thuật. Vui lòng thử lại sau hoặc sử dụng form tư vấn.";
     }
 }
 
 async function generateStreamingAIResponse(userMessage) {
     try {
-        const prompt = createChatPrompt(userMessage);
-        
         // Create streaming message
         addMessageToChat('ai', '', true);
         hideTypingIndicator();
         
         // Simulate streaming response
-        const response = await callAIAPI(prompt);
+        const response = await callAIAPI(userMessage);
         let currentText = '';
         const words = response.split(' ');
         
@@ -1200,15 +1315,6 @@ async function generateStreamingAIResponse(userMessage) {
         if (currentStreamingMessage) {
             currentStreamingMessage.id = '';
             currentStreamingMessage = null;
-        }
-        
-        // Check if AI suggests filling the form
-        if (response.toLowerCase().includes('điền form') || 
-            response.toLowerCase().includes('thông tin') ||
-            response.toLowerCase().includes('form')) {
-            setTimeout(() => {
-                addMessageToChat('ai', '💡 <strong>Gợi ý:</strong> Bạn có thể điền thông tin chi tiết hơn trong form bên trái để nhận được tư vấn chính xác hơn về ngành học phù hợp!');
-            }, 1000);
         }
     } catch (error) {
         console.error('Chat AI Error:', error);
@@ -1865,3 +1971,81 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     console.log('DOMContentLoaded completed');
 });
+
+function saveChatHistory() {
+    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+}
+
+function resetChatHistory() {
+    chatHistory = [];
+    saveChatHistory();
+    
+    // Clear chat messages
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        chatMessages.innerHTML = '';
+    }
+    
+    // Add welcome message
+    addMessageToChat('ai', 'Xin chào! Tôi là AI tư vấn viên của FPT Polytechnic. Tôi có thể giúp bạn:\n\n• Tìm hiểu về các ngành học\n• Tư vấn chọn ngành phù hợp\n• Giải đáp thắc mắc về trường\n\nBạn muốn biết thêm thông tin gì?', false, true);
+}
+
+function addMessageToChat(sender, message, isStreaming = false, skipHistory = false) {
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    if (isStreaming) {
+        messageDiv.id = 'streamingMessage';
+        currentStreamingMessage = messageDiv;
+    }
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    
+    const header = document.createElement('div');
+    header.className = 'message-header';
+    
+    const senderName = document.createElement('span');
+    senderName.className = 'sender-name';
+    
+    const messageTime = document.createElement('span');
+    messageTime.className = 'message-time';
+    
+    const textDiv = document.createElement('div');
+    textDiv.className = 'message-text';
+    
+    if (sender === 'user') {
+        avatar.innerHTML = '<i class="fas fa-user"></i>';
+        senderName.textContent = 'Bạn';
+        messageTime.textContent = getCurrentTime();
+        textDiv.innerHTML = `<p>${escapeHtml(message)}</p>`;
+    } else {
+        avatar.innerHTML = '<i class="fas fa-robot"></i>';
+        senderName.textContent = 'AI Tư Vấn';
+        messageTime.textContent = getCurrentTime();
+        // Render markdown for AI messages
+        textDiv.innerHTML = marked.parse(message);
+    }
+    
+    header.appendChild(senderName);
+    header.appendChild(messageTime);
+    content.appendChild(header);
+    content.appendChild(textDiv);
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(content);
+    chatMessages.appendChild(messageDiv);
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Add to history if not skipped
+    if (!skipHistory) {
+        chatHistory.push({ sender, message, timestamp: new Date() });
+        saveChatHistory();
+    }
+}
